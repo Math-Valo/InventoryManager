@@ -4,16 +4,19 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QPushBut
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
-class Cover(QMainWindow):
+class CoverWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         # Constantes
-        title_name = "Nivelación de Inventarios"
-        first_logo_name = "logo_millet_brands.png"
-        second_logo_name = "logo_abito.jpg"
-        background_image_name = "background.png"
+        title_app = "Nivelación de Inventarios"
+        millet_brands_logo = "logo_millet_brands.png"
+        abito_logo = "logo_abito.jpg"
+        cover_background = "background.png"
 
+        self.setup_ui(title_app, millet_brands_logo, abito_logo, cover_background)
+
+    def setup_ui(self, title_name, first_logo_name, second_logo_name, background_image_name):
         self.setWindowTitle(title_name)
         self.setGeometry(100, 100, 800, 600)
 
@@ -22,7 +25,7 @@ class Cover(QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
         # Ruta a la carpeta de imágenes
-        self.image_dir = os.path.join(os.path.dirname(__file__), '..', 'images')
+        self.image_dir = os.path.join(os.path.dirname(__file__), "..\\..", "images")
         self.background_image_path = os.path.join(self.image_dir, background_image_name).replace("\\", "/")
 
         # Crear un QLabel para la imagen de fondo
@@ -63,42 +66,40 @@ class Cover(QMainWindow):
 
         # Botón Iniciar centrado horizontalmente en la parte inferior
         start_button_layout = QHBoxLayout()
-        start_button = QPushButton('Iniciar')
-        start_button.setFixedWidth(100)
-        start_button.setFixedHeight(40)
-        start_button.setStyleSheet("font-size: 18px; background-color: white;")
-        start_button.clicked.connect(self.start_app)
+        self.start_button = QPushButton("Iniciar")
+        self.start_button.setFixedWidth(100)
+        self.start_button.setFixedHeight(40)
+        self.start_button.setStyleSheet("font-size: 18px; background-color: white;")
         start_button_layout.addStretch()
-        start_button_layout.addWidget(start_button)
+        start_button_layout.addWidget(self.start_button)
         start_button_layout.addStretch()
 
         # Layout inferior
         bottom_layout = QHBoxLayout()
 
         # Botón Exit
-        exit_button = QPushButton()
-        exit_button.setIcon(QIcon(os.path.join(self.image_dir, 'exit_black.png').replace("\\", "/")))
-        exit_button.setIconSize(exit_button.sizeHint())
-        exit_button.setToolTip('Salir')
-        exit_button.clicked.connect(self.close)
+        self.exit_button = QPushButton()
+        self.exit_button.setIcon(QIcon(os.path.join(self.image_dir, "exit_black.png").replace("\\", "/")))
+        self.exit_button.setIconSize(self.exit_button.sizeHint())
+        self.exit_button.setToolTip("Salir")
 
-        bottom_layout.addWidget(exit_button, alignment=Qt.AlignLeft)
+        bottom_layout.addWidget(self.exit_button, alignment=Qt.AlignLeft)
 
         bottom_icons_layout = QHBoxLayout()
         bottom_icons_layout.addStretch()
 
         # Botones de Configuración y Ayuda con Tooltips
-        settings_button = QPushButton()
-        settings_button.setIcon(QIcon(os.path.join(self.image_dir, 'settings_black.png').replace("\\", "/")))
-        settings_button.setIconSize(settings_button.sizeHint())
-        settings_button.setToolTip('Configuración')
+        self.settings_button = QPushButton()
+        self.settings_button.setIcon(QIcon(os.path.join(self.image_dir, "settings_black.png").replace("\\", "/")))
+        self.settings_button.setIconSize(self.settings_button.sizeHint())
+        self.settings_button.setToolTip("Configuración")
 
         help_button = QPushButton()
-        help_button.setIcon(QIcon(os.path.join(self.image_dir, 'help_black.png').replace("\\", "/")))
+        help_button.setIcon(QIcon(os.path.join(self.image_dir, "help_black.png").replace("\\", "/")))
         help_button.setIconSize(help_button.sizeHint())
-        help_button.setToolTip('Ayuda')
+        help_button.setToolTip("Ayuda")
 
-        bottom_icons_layout.addWidget(settings_button)
+        bottom_icons_layout.addWidget(self.settings_button)
         bottom_icons_layout.addWidget(help_button)
 
         bottom_layout.addLayout(bottom_icons_layout)
@@ -127,13 +128,10 @@ class Cover(QMainWindow):
         self.background_label.resize(self.centralwidget.size())
         self.widgets_container.resize(self.centralwidget.size())
 
-    def start_app(self):
-        print("App started!")
-
 # Inicialización de la aplicación
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    cover = Cover()
+    cover = CoverWindow()
     cover.show()
     sys.exit(app.exec_())
