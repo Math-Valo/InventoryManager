@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMessageBox
-# from models.database import Database
+from models.database import Database
 
 class SettingsController:
     def __init__(self, settings_window):
@@ -14,19 +14,10 @@ class SettingsController:
         port = self.settings_window.port_input.text()
         driver = self.settings_window.driver_input.text()
 
-        print(f"""
-            Host: {host}
-            DB: {database}
-            User: {user}
-            Pass: {password}
-            Port: {port}
-            Driver: {driver}
-        """)
-
-        # self.database = Database(host, user, password, database)
-        # if self.database.connect():
-        #     QMessageBox.information(self.settings_window, 'Éxito', 'Conexión exitosa.')
-        #     if self.settings_window.save_checkbox.isChecked():
-        #         self.database.save_credentials(user, password)
-        # else:
-        #     QMessageBox.warning(self.settings_window, 'Error', 'Conexión fallida.')
+        self.database = Database(host, database, user, password, port, driver)
+        if self.database.connect():
+            QMessageBox.information(self.settings_window, 'Éxito', 'Conexión exitosa.')
+            # if self.settings_window.save_checkbox.isChecked():
+            #     self.database.save_credentials(user, password)
+        else:
+            QMessageBox.warning(self.settings_window, 'Error', 'Conexión fallida.')

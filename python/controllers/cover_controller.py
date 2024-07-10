@@ -14,14 +14,16 @@ class CoverController(QObject):
         # Conectar señales
         self.cover_window.start_button.clicked.connect(self.start_app)
         self.cover_window.settings_button.clicked.connect(self.open_settings)
-        self.cover_window.exit_button.clicked.connect(self.cover_window.close)
+        self.cover_window.exit_button.clicked.connect(self.close_app)
         self.close_settings_signal.connect(self.settings_window.close)
 
     def show_cover_window(self):
         self.cover_window.show()
 
-    # def close_app(self):
-    #     self.
+    def close_app(self):
+        self.close_settings_signal.emit()
+        self.cover_window.close()
+        print("App cerrada correctamente")
 
     def start_app(self):
         self.close_settings_signal.emit()

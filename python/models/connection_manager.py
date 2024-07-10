@@ -14,7 +14,7 @@ class ConnectionManager:
     def connect(self):
         try:
             connection_url = sa.engine.URL.create(
-                drivername="mysql-pyodbc",
+                drivername="mysql+pyodbc",  # Requiere tener instalado el módulo pyodbc
                 host=self.host,
                 database=self.database,
                 username=self.user,
@@ -27,15 +27,17 @@ class ConnectionManager:
             )
             self.engine = sa.create_engine(connection_url)
             self.connection = self.engine.connect()
+            self.connection.close()
+            return True
         except Exception as e:
             print(f"Error al conectar la base de datos: {e}")
             return False
         
-    def close(self):
-        # Como tal, engine es una "fábrica" de conexiones, o grupo de conexiones,
-        # no la conexión en sí. Por lo que 
-        self.connection.close()
-        self.engine.dispose()
+    # def close(self):
+    #     # Como tal, engine es una "fábrica" de conexiones, o grupo de conexiones,
+    #     # no la conexión en sí. Por lo que 
+    #     self.connection.close()
+    #     self.engine.dispose()
 
     def get_connection(self):
         return self.connection

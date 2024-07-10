@@ -11,6 +11,8 @@ class Database:
     def connect(self):
         if self.connection_manager.connect():
             self.connection = self.connection_manager.get_connection()
+            return True
+        return False
 
     def close(self):
         self.connection_manager.close()
