@@ -1,10 +1,9 @@
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QWidget, QVBoxLayout, 
-    QTabWidget, QLineEdit, QLabel, QCheckBox, QMessageBox
+    QTabWidget, QLineEdit, QLabel, QCheckBox
 )
-from PyQt5.QtCore import pyqtSlot
-import hashlib
+from controllers.settings_controller import SettingsController
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -29,6 +28,7 @@ class SettingsWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setup_ui()
+        self.controller = SettingsController(self)
 
     def setup_ui(self):
         self.setWindowTitle("Configuración")
@@ -56,11 +56,13 @@ class SettingsWindow(QMainWindow):
         
         self.server_label = QLabel("Servidor:")
         self.server_input = QLineEdit()
+        self.server_input.setText("108.175.14.162")
         layout.addWidget(self.server_label)
         layout.addWidget(self.server_input)
 
         self.db_label = QLabel("Base de datos:")
         self.db_input = QLineEdit()
+        self.db_input.setText("DBABITOMSQL")
         layout.addWidget(self.db_label)
         layout.addWidget(self.db_input)
 
@@ -77,11 +79,13 @@ class SettingsWindow(QMainWindow):
 
         self.port_label = QLabel("Puerto (opcional):")
         self.port_input = QLineEdit()
+        self.port_input.setText("3306")
         layout.addWidget(self.port_label)
         layout.addWidget(self.port_input)
 
         self.driver_label = QLabel("Driver (opcional):")
         self.driver_input = QLineEdit()
+        self.driver_input.setText("MySQL ODBC 8.4 ANSI Driver")
         layout.addWidget(self.driver_label)
         layout.addWidget(self.driver_input)
 
@@ -89,7 +93,6 @@ class SettingsWindow(QMainWindow):
         layout.addWidget(self.save_checkbox)
         
         self.test_button = QPushButton("Verificar Conexión")
-        # self.test_button.clicked.connect(self.verify_connection)
         layout.addWidget(self.test_button)
         
         self.db_tab.setLayout(layout)
@@ -99,43 +102,3 @@ class SettingsWindow(QMainWindow):
     #     self.color_label = QLabel('Esta es la pestaña para cambiar el color de fondo.')
     #     layout.addWidget(self.color_label)
     #     self.color_tab.setLayout(layout)
-
-    # @pyqtSlot()
-    # def verify_connection(self):
-    #     server = self.server_input.text()
-    #     db = self.db_input.text()
-    #     user = self.user_input.text()
-    #     password = self.pass_input.text()
-    #     port = self.port_input.text()
-    #     driver = self.driver_input.text()
-    # 
-    #     # Queda por agregar el código para verificar la conexión a la base de datos
-    #     # Esta es una simulación de la verificación de conexión
-    #     if user == "admin" and password == "admin":
-    #         QMessageBox.information(self, "Éxito", "Conexión exitosa.")
-    #         if self.save_checkbox.isChecked():
-    #             self.save_credentials(server, db, user, password, port, driver)
-    #     else:
-    #         QMessageBox.warning(self, "Error", "Conexión fallida.")
-
-    # def save_credentials(self, server, db, user, password, port, driver):
-    #     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    #     # Guardar las credenciales (con la contraseña hash) en un archivo o base de datos segura
-    #     with open("credentials.txt", "w") as file:
-    #         file.write(f"{user}:{hashed_password}")
-    #     QMessageBox.information(self, "Guardado", "Credenciales guardadas de manera segura.")
-    #     with open("credentials.txt", "w") as file:
-    #         file.write(f"""
-    #             DRIVER={{{driver}}};
-    #             SERVER={server};
-    #             PORT={port};
-    #             DATABASE={db};
-    #             UID={user};
-    #             PASSWORD={hashed_password};
-    #         """
-            
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    main_window = MainWindow()
-    main_window.show()
-    sys.exit(app.exec_())

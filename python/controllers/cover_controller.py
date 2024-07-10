@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMessageBox
 from views.cover_window import CoverWindow
 from views.settings_window import SettingsWindow
 
-class MainController:
+class CoverController:
     def __init__(self):
         self.cover_window = CoverWindow()
         self.cover_window.start_button.clicked.connect(self.start_app)

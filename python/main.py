@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from controllers.main_controller import MainController
+from controllers.cover_controller import CoverController
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    main_controller = MainController()
-    main_controller.show_main_window()
+    cover_controller = CoverController()
+    cover_controller.show_main_window()
     sys.exit(app.exec_())
