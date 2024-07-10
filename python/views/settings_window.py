@@ -1,28 +1,6 @@
-import sys
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QWidget, QVBoxLayout, 
-    QTabWidget, QLineEdit, QLabel, QCheckBox
-)
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QWidget, QVBoxLayout, QTabWidget, QLineEdit, QLabel, QCheckBox
 from controllers.settings_controller import SettingsController
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setup_ui()
-
-    def setup_ui(self):
-        self.setWindowTitle("Aplicación Principal")
-        
-        self.button = QPushButton("Cambiar Configuración", self)
-        self.button.clicked.connect(self.openSettings)
-
-        self.setCentralWidget(self.button)
-        self.setGeometry(100, 100, 800, 600)
-
-    def openSettings(self):
-        self.close()
-        self.settings_window = SettingsWindow()
-        self.settings_window.show()
 
 class SettingsWindow(QMainWindow):
     def __init__(self):
@@ -96,9 +74,3 @@ class SettingsWindow(QMainWindow):
         layout.addWidget(self.test_button)
         
         self.db_tab.setLayout(layout)
-
-    # def color_tab_ui(self):
-    #     layout = QVBoxLayout()
-    #     self.color_label = QLabel('Esta es la pestaña para cambiar el color de fondo.')
-    #     layout.addWidget(self.color_label)
-    #     self.color_tab.setLayout(layout)

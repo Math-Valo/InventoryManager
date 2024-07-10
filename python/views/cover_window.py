@@ -1,6 +1,5 @@
-import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
@@ -127,11 +126,3 @@ class CoverWindow(QMainWindow):
     def update_background_and_widgets(self):
         self.background_label.resize(self.centralwidget.size())
         self.widgets_container.resize(self.centralwidget.size())
-
-# Inicialización de la aplicación
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    cover = CoverWindow()
-    cover.show()
-    sys.exit(app.exec_())
