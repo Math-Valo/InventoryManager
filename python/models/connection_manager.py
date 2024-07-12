@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 
 class ConnectionManager:
-    def __init__(self, host, database, user, password, port, driver) -> None:
+    def __init__(self, host="", database="", user="", password="", port="", driver="") -> None:
         self.host = host
         self.database = database
         self.user = user
@@ -10,6 +10,14 @@ class ConnectionManager:
         self.driver = driver
         self.engine = None
         self.connection = None
+
+    def set_credentials(self, host, database, user, password, port, driver) -> None:
+        self.host = host
+        self.database = database
+        self.user = user
+        self.password = password
+        self.port = port
+        self.driver = driver
 
     def connect(self):
         try:
