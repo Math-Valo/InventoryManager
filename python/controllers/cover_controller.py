@@ -2,7 +2,7 @@ from PyQt5.QtCore import QObject, pyqtSlot
 from views.cover_window import CoverWindow
 from controllers.settings_controller import SettingsController
 from models.database import Database
-
+# import pandas as pd
 
 class CoverController(QObject):
 
@@ -36,10 +36,11 @@ class CoverController(QObject):
     def start_app(self):
         # Paso de la configuración
         self.settings["database_connection"] = self.settings_controller.database_connection
-        # Revisar si comenzó la aplicación con la conexión debida.
-        # if self.settings["database_connection"]:
-        #     pass
+        # Cerrar todo correctamente
         self.close_all_windows()
+        # Probar la conexión
+        # df = self.settings["database_connection"].execute_query("last_date_in_inventory")
+        # print(df)
         print("¡La aplicación ha iniciado!")    
     
     def on_settings_applied(self):

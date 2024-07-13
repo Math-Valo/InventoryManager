@@ -41,11 +41,8 @@ class ConnectionManager:
             print(f"Error al conectar la base de datos: {e}")
             return False
         
-    # def close(self):
-    #     # Como tal, engine es una "fábrica" de conexiones, o grupo de conexiones,
-    #     # no la conexión en sí. Por lo que 
-    #     self.connection.close()
-    #     self.engine.dispose()
+    def close(self):
+        self.engine.dispose()
 
-    def get_connection(self):
-        return self.connection
+    def get_engine(self):
+        return self.engine
