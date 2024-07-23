@@ -9,46 +9,77 @@ from views.settings_window import SettingsWindow
 class SettingsController(QObject):
     settings_applied_signal = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, config_manager=None):
         super().__init__()
+        # self.config_manager = config_manager
+
+        from models.config_manager import ConfigManager
+        self.config_manager = ConfigManager()
+
+
         self.database_connection = Database()
-        self.settings_window = SettingsWindow()
-        self.settings_window.test_connection_button.clicked.connect(self.verify_connection)
-        self.settings_window.apply_settings_buttom.clicked.connect(self.apply_settings)
-        self.settings_window.close_buttom.clicked.connect(self.close_settings)
+        self.view = SettingsWindow()
+        self.view.test_connection_button.clicked.connect(self.verify_connection)
+        self.view.apply_settings_buttom.clicked.connect(self.apply_settings)
+        self.view.close_buttom.clicked.connect(self.close_settings)
+
+        self.load_credentials()
 
     def show(self):
-        self.settings_window.show()
+        self.view.show()
 
     def verify_connection(self):
-        host = self.settings_window.server_input.text()
-        database = self.settings_window.db_input.text()
-        user = self.settings_window.user_input.text()
-        password = self.settings_window.pass_input.text()
-        port = self.settings_window.port_input.text()
-        driver = self.settings_window.driver_input.text()
+        host = self.view.server_input.text()
+        database = self.view.db_input.text()
+        user = self.view.user_input.text()
+        password = self.view.pass_input.text()
+        port = self.view.port_input.text()
+        driver = self.view.driver_input.text()
 
         self.database_connection.set_credentials(host, database, user, password, port, driver)
         if self.database_connection.connect():
-            QMessageBox.information(self.settings_window, 'Éxito', 'Conexión exitosa.')
-            # if self.settings_window.save_checkbox.isChecked():
+            QMessageBox.information(self.view, 'Éxito', 'Conexión exitosa.')
+            # if self.view.save_checkbox.isChecked():
             #     self.database.save_credentials(user, password)
         else:
-            QMessageBox.warning(self.settings_window, 'Error', 'Conexión fallida.')
+            QMessageBox.warning(self.view, 'Error', 'Conexión fallida.')
+
+    def get_credentials(self):
+        return {
+            "host": self.view.server_input.text(),
+            "database": self.view.db_input.text(),
+            "user": self.view.user_input.text(),
+            "password": self.view.pass_input.text(),
+            "port": self.view.port_input.text(),
+            "driver": self.view.driver_input.text()
+        }
+
+    def set_credentials(self, credentials):
+        self.view.server_input.setText(credentials.get("host", ""))
+        self.view.db_input.setText(credentials.get("database", ""))
+        self.view.user_input.setText(credentials.get("user", ""))
+        self.view.pass_input.setText(credentials.get("password", ""))
+        self.view.port_input.setText(credentials.get("port", ""))
+        self.view.driver_input.setText(credentials.get("driver", ""))
 
     def apply_settings(self):
-        host = self.settings_window.server_input.text()
-        database = self.settings_window.db_input.text()
-        user = self.settings_window.user_input.text()
-        password = self.settings_window.pass_input.text()
-        port = self.settings_window.port_input.text()
-        driver = self.settings_window.driver_input.text()
-
-        self.database_connection.set_credentials(host, database, user, password, port, driver)
-
+        credentials = self.get_credentials()
+        self.database_connection.set_credentials(
+            credentials.get("host", ""),
+            credentials.get("database", ""),
+            credentials.get("user", ""),
+            credentials.get("password", ""),
+            credentials.get("port", ""),
+            credentials.get("driver", "")
+        )
         self.settings_applied_signal.emit()
-
+        self.config_manager.set_settings("credentials", credentials)
         print("Configuración aplicada")
 
+    def load_credentials(self):
+        credentials = self.config_manager.get_settings("credentials")
+        if credentials:
+            self.set_credentials(credentials)
+
     def close_settings(self):
-        self.settings_window.close()
+        self.view.close()

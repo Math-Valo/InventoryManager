@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (
-    QMainWindow, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget,
-    QLineEdit, QLabel, QFormLayout
+    QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget,
+    QLineEdit, QLabel, QFormLayout, QCheckBox
 )
 # from controllers.settings_controller import SettingsController
 
@@ -13,7 +13,7 @@ class SettingsWindow(QWidget):
 
     def setup_ui(self):
         self.setWindowTitle("Configuración")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 600, 800)
 
         # Layout principal
         main_layout = QVBoxLayout()
@@ -54,10 +54,10 @@ class SettingsWindow(QWidget):
 
         # Elementos del formulario        
         self.server_input = QLineEdit()
-        self.server_input.setText("108.175.14.162")
+        # self.server_input.setText("108.175.14.162")
 
         self.db_input = QLineEdit()
-        self.db_input.setText("DBABITOMSQL")
+        # self.db_input.setText("DBABITOMSQL")
 
         self.user_input = QLineEdit()
         
@@ -65,10 +65,10 @@ class SettingsWindow(QWidget):
         self.pass_input.setEchoMode(QLineEdit.Password)
 
         self.port_input = QLineEdit()
-        self.port_input.setText("3306")
+        # self.port_input.setText("3306")
 
         self.driver_input = QLineEdit()
-        self.driver_input.setText("MySQL ODBC 8.4 ANSI Driver")
+        # self.driver_input.setText("MySQL ODBC 8.4 ANSI Driver")
 
         layout_form.addRow(QLabel("Servidor"), self.server_input)
         layout_form.addRow(QLabel("Base de datos:"), self.db_input)
@@ -78,7 +78,7 @@ class SettingsWindow(QWidget):
         layout_form.addRow(QLabel("Driver (opcional):"), self.driver_input)
 
         # Botones de interacción de las credenciales.
-        # self.save_checkbox = QCheckBox("Establecer credenciales por defecto")
+        self.save_checkbox = QCheckBox("Establecer credenciales por defecto")
         self.test_connection_button = QPushButton("Verificar Conexión")
         # layout_form.addWidget(self.save_checkbox)
         layout_form.addWidget(self.test_connection_button)

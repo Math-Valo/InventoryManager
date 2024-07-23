@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QLabel, QPushButton, QVBoxLayo
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
+
 class CoverWindow(QMainWindow):
     def __init__(self):
         super().__init__()

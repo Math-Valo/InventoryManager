@@ -47,5 +47,5 @@ class CoverController(QObject):
 
     @pyqtSlot()
     def close_all_windows(self):
-        self.settings_controller.settings_window.close()
+        self.settings_controller.close_settings()
         self.cover_window.close()
