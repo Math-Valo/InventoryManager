@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication
 from controllers.cover_controller import CoverController
-from controllers.settings_controller import SettingsController
 from controllers.date_inventory_controller import DateInventoryController
+from models.app_state import AppState
 
 
 class NavigationController:
@@ -14,10 +14,11 @@ class NavigationController:
     def star_application(self, database_connection):
         self.settings = self.cover_controller.settings
         self.cover_controller.close()
-        self.date_inventory_controller = DateInventoryController(self, self.settings, database_connection)
+
+        self.app_state = AppState()
+
+        self.date_inventory_controller = DateInventoryController(self, self.settings, database_connection, self.app_state)
         self.date_inventory_controller.show()
-        print("Se ha iniciado la aplicación")
-        # Iniciar la lógica de la aplicación de neogio
 
     def exit_application(self):
         self.app.quit()

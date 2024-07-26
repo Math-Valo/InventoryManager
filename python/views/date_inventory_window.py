@@ -1,13 +1,11 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QDateEdit, QPushButton
-from PyQt5.QtCore import QDate, pyqtSlot
-# import datetime
+from PyQt5.QtCore import QDate
+
 
 class DateInventoryWindow(QWidget):
-    # reset_date = pyqtSlot()
-    # next_window = pyqtSlot()
-    def __init__(self, controller=None) -> None:
+    def __init__(self, last_date_in_inventory) -> None:
         super().__init__()
-        # self.controller = controller
+        self.inventory_date = last_date_in_inventory
         self.setup_ui()
 
     def setup_ui(self):
@@ -23,9 +21,9 @@ class DateInventoryWindow(QWidget):
 
         self.date_edit = QDateEdit(self)
         self.date_edit.setCalendarPopup(True)
-        # self.date_edit.setDate(QDate(self.inventory_date.year,
-        #                         self.inventory_date.month,
-        #                         self.inventory_date.day))
+        self.date_edit.setDate(QDate(self.inventory_date.year,
+                                self.inventory_date.month,
+                                self.inventory_date.day))
         layout.addWidget(self.date_edit)
 
         # Layout para las opciones de la ventana
@@ -46,6 +44,6 @@ class DateInventoryWindow(QWidget):
 
 
     def set_date(self, date) -> None:
-        if date is None:
+        if date is not None:
             self.date_edit.setDate(QDate(date.year, date.month, date.day))
         self.date_edit.setDate(QDate.currentDate())
