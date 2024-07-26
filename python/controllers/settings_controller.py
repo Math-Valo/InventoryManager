@@ -1,29 +1,24 @@
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from models.database import Database
 from views.settings_window import SettingsWindow
 
 
-# ToDo: cambiar las ventanas de alerta por acciones de un módulo para vistas de alertas
-
 class SettingsController(QObject):
     settings_applied_signal = pyqtSignal()
 
-    def __init__(self, config_manager=None):
+    def __init__(self, settings):
         super().__init__()
-        # self.config_manager = config_manager
-
-        from models.config_manager import ConfigManager
-        self.config_manager = ConfigManager()
-
-
+        self.settings = settings
         self.database_connection = Database()
-        self.view = SettingsWindow()
+        self.view = SettingsWindow(self.settings)
+        self.load_credentials()
+        self.setup_connections()
+
+    def setup_connections(self):
         self.view.test_connection_button.clicked.connect(self.verify_connection)
         self.view.apply_settings_buttom.clicked.connect(self.apply_settings)
-        self.view.close_buttom.clicked.connect(self.close_settings)
-
-        self.load_credentials()
+        self.view.close_buttom.clicked.connect(self.close)
 
     def show(self):
         self.view.show()
@@ -62,6 +57,7 @@ class SettingsController(QObject):
         self.view.port_input.setText(credentials.get("port", ""))
         self.view.driver_input.setText(credentials.get("driver", ""))
 
+
     def apply_settings(self):
         credentials = self.get_credentials()
         self.database_connection.set_credentials(
@@ -73,13 +69,12 @@ class SettingsController(QObject):
             credentials.get("driver", "")
         )
         self.settings_applied_signal.emit()
-        self.config_manager.set_settings("credentials", credentials)
-        print("Configuración aplicada")
+        self.settings.set_settings("credentials", credentials)
 
     def load_credentials(self):
-        credentials = self.config_manager.get_settings("credentials")
+        credentials = self.settings.get_settings("credentials")
         if credentials:
             self.set_credentials(credentials)
 
-    def close_settings(self):
+    def close(self):
         self.view.close()

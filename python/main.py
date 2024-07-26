@@ -1,9 +1,11 @@
-import sys
-from PyQt5.QtWidgets import QApplication
-from controllers.cover_controller import CoverController
+from models.config_manager import ConfigManager
+from controllers.navigation_controller import NavigationController
+
+
+def main():
+    settings = ConfigManager()
+    navigation_controller = NavigationController(settings)
+    navigation_controller.run()
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    cover_controller = CoverController()
-    cover_controller.show_cover_window()
-    sys.exit(app.exec_())
+    main()

@@ -6,10 +6,10 @@ from PyQt5.QtWidgets import (
 
 
 class SettingsWindow(QWidget):
-    def __init__(self):
+    def __init__(self, settings):
         super().__init__()
+        self.settings = settings
         self.setup_ui()
-       #  self.controller = SettingsController(self)
 
     def setup_ui(self):
         self.setWindowTitle("Configuración")

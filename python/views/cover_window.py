@@ -7,7 +7,6 @@ from PyQt5.QtCore import Qt
 class CoverWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
         # Constantes
         title_app = "Nivelación de Inventarios"
         millet_brands_logo = "logo_millet_brands.png"

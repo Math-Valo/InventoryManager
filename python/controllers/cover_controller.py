@@ -1,52 +1,51 @@
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtCore import pyqtSignal
 from views.cover_window import CoverWindow
 from controllers.settings_controller import SettingsController
 from models.database import Database
-# import pandas as pd
+from PyQt5.QtWidgets import QMessageBox
 
-class CoverController(QObject):
 
-    def __init__(self):
-        super().__init__()
-        # Ventanas que dependen de la portada
-        self.cover_window = CoverWindow()
-        self.settings_controller = SettingsController()
-        
-        # Conexión a la base de datos
-        self.settings = {
-            "database_connection": Database()
-        }
+class CoverController:
+    def __init__(self, navigation_controller, settings):
+        self.navigation_controller = navigation_controller
+        self.settings = settings
+        self.database_connection = Database()
+        self.view = CoverWindow()
+        self.settings_controller = SettingsController(self.settings)
+        self.setup_connections()
 
-        # Conectar señales
-        self.cover_window.start_button.clicked.connect(self.start_app)
-        self.cover_window.settings_button.clicked.connect(self.open_settings)
-        self.cover_window.exit_button.clicked.connect(self.close_all_windows)
+    def setup_connections(self):
+        self.view.exit_button.clicked.connect(self.exit_application)
+        self.view.start_button.clicked.connect(self.start_application)
+        self.view.settings_button.clicked.connect(self.open_settings_window)
         self.settings_controller.settings_applied_signal.connect(self.on_settings_applied)
 
-    def show_cover_window(self):
-        self.cover_window.show()
-
-    def open_settings(self):
+    def open_settings_window(self):
         self.settings_controller.show()
 
-    def close_app(self):
-        self.cover_window.close()
-        print("App cerrada correctamente")
+    def exit_application(self):
+        self.navigation_controller.exit_application()
 
-    def start_app(self):
-        # Paso de la configuración
-        self.settings["database_connection"] = self.settings_controller.database_connection
-        # Cerrar todo correctamente
-        self.close_all_windows()
-        # Probar la conexión
-        # df = self.settings["database_connection"].execute_query("last_date_in_inventory")
-        # print(df)
-        print("¡La aplicación ha iniciado!")    
-    
     def on_settings_applied(self):
-        print("La configuración ha sido aplicada.")
+        credentials = self.settings.settings.get("credentials")
+        print(credentials)
+        host = credentials.get("host", "")
+        database = credentials.get("database", "")
+        user = credentials.get("user", "")
+        password = credentials.get("password", "")
+        port = credentials.get("port", "")
+        driver = credentials.get("driver", "")
+        self.database_connection.set_credentials(host, database, user, password, port, driver)
 
-    @pyqtSlot()
-    def close_all_windows(self):
-        self.settings_controller.close_settings()
-        self.cover_window.close()
+    def start_application(self):
+        self.settings_controller.close()
+        if not self.database_connection.connect():
+            pyqtSignal
+            QMessageBox.warning(self.view, 'Error', 'No se pudo conectar a la base de datos.')
+        self.navigation_controller.star_application(self.database_connection)
+    
+    def close(self):
+        self.view.close()
+
+    def show(self):
+        self.view.show()
