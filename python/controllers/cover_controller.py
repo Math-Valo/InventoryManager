@@ -41,7 +41,7 @@ class CoverController:
         if not self.database_connection.connect():
             pyqtSignal
             QMessageBox.warning(self.view, 'Error', 'No se pudo conectar a la base de datos.')
-        self.navigation_controller.star_application(self.database_connection)
+        self.navigation_controller.start_application(self.database_connection)
     
     def close(self):
         self.view.close()

@@ -3,7 +3,7 @@ from datetime import datetime
 
 class AppState:
     def __init__(self):
-        self.inventory_date = None
+        self.inventory_date = str()
         self.inventory_data = pd.DataFrame()
         self.filtered_inventory_data = pd.DataFrame()
         self.sales_data = pd.DataFrame()

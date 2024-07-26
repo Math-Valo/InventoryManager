@@ -10,7 +10,6 @@ class DateInventoryController:
         self.last_date_in_inventory = self.get_last_date()
         self.view = DateInventoryWindow(self.last_date_in_inventory)
         self.setup_connections()
-        self.view.setup_ui()
 
     def setup_connections(self):
         self.view.reset_date_button.clicked.connect(self.reset_date)
@@ -29,7 +28,11 @@ class DateInventoryController:
         self.view.set_date(self.last_date_in_inventory)
 
     def continue_to_next_window(self):
-        # self.navigation_controller
-        selected_date = self.view.date_edit.date()
-        print(selected_date)
-        print("¡Continua a la siguiente página!")
+        selected_date = self.get_date()
+        self.navigation_controller.show_store_view(selected_date)
+
+    def get_date(self):
+        return self.view.date_edit.date().toString("yyyy-MM-dd")
+
+    def close(self):
+        self.view.close()

@@ -10,13 +10,12 @@ class DateInventoryWindow(QWidget):
 
     def setup_ui(self):
         self.setWindowTitle("Fecha del inventario")
-        self.setGeometry(100, 100, 510, 240)
+        self.setGeometry(100, 100, 410, 140)
 
         # Layout principal
         layout = QVBoxLayout()
 
-
-        label = QLabel("Indique la fecha correcta de registro de inventarios:")
+        label = QLabel("Indique la fecha de la última captura de datos de los inventarios:")
         layout.addWidget(label)
 
         self.date_edit = QDateEdit(self)
@@ -30,10 +29,10 @@ class DateInventoryWindow(QWidget):
         layout_options = QHBoxLayout()
 
         # Botón para reestablecer la fecha predeterminada
-        self.reset_date_button = QPushButton("Restablecer fecha", self)
+        self.reset_date_button = QPushButton("Restablecer fecha")
 
         # Botón para continuar a la siguiente fase de la nivelación
-        self.continue_button = QPushButton("Continuar >>>", self)
+        self.continue_button = QPushButton("Continuar >>>")
 
         layout_options.addWidget(self.reset_date_button)
         layout_options.addWidget(self.continue_button)
