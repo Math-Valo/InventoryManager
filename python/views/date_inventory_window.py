@@ -5,9 +5,9 @@ from PyQt5.QtCore import QDate, pyqtSlot
 class DateInventoryWindow(QWidget):
     # reset_date = pyqtSlot()
     # next_window = pyqtSlot()
-    def __init__(self, controller) -> None:
+    def __init__(self, controller=None) -> None:
         super().__init__()
-        self.controller = controller
+        # self.controller = controller
         self.setup_ui()
 
     def setup_ui(self):
@@ -33,11 +33,9 @@ class DateInventoryWindow(QWidget):
 
         # Botón para reestablecer la fecha predeterminada
         self.reset_date_button = QPushButton("Restablecer fecha", self)
-        self.reset_date_button.clicked.connect(self.controller.reset_date)  # Función para cambiar fecha
 
         # Botón para continuar a la siguiente fase de la nivelación
         self.continue_button = QPushButton("Continuar >>>", self)
-        self.continue_button.clicked.connect(self.controller.continue_to_next_window)
 
         layout_options.addWidget(self.reset_date_button)
         layout_options.addWidget(self.continue_button)

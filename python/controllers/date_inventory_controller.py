@@ -2,15 +2,15 @@ from views.date_inventory_window import DateInventoryWindow
 from PyQt5 import QtCore
 
 class DateInventoryController:
-    def __init__(self, navigation_controller, settings, app_state=None) -> None:
+    def __init__(self, navigation_controller, settings, database_connection, app_state=None) -> None:
         self.navigation_controller = navigation_controller
         self.settings = settings
         self.app_state = app_state
-        self.view = DateInventoryWindow(self)
-        self.connection = self.settings.get("database_connection")
+        self.view = DateInventoryWindow()
+        self.connection = database_connection
         self.view.setup_ui()
 
-    def show_date_inventory_window(self):
+    def show(self):
         self.view.show()
 
     def get_last_date(self):

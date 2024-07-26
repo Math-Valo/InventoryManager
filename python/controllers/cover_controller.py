@@ -28,7 +28,6 @@ class CoverController:
 
     def on_settings_applied(self):
         credentials = self.settings.settings.get("credentials")
-        print(credentials)
         host = credentials.get("host", "")
         database = credentials.get("database", "")
         user = credentials.get("user", "")
