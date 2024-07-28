@@ -2,10 +2,10 @@ from views.date_inventory_window import DateInventoryWindow
 
 
 class DateInventoryController:
-    def __init__(self, navigation_controller, settings, database_connection, app_state) -> None:
+    def __init__(self, navigation_controller, settings, database_connection) -> None:
         self.navigation_controller = navigation_controller
         self.settings = settings
-        self.app_state = app_state
+        # self.app_state = app_state
         self.connection = database_connection
         self.last_date_in_inventory = self.get_last_date()
         self.view = DateInventoryWindow(self.last_date_in_inventory)

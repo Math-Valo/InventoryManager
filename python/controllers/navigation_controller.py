@@ -25,7 +25,7 @@ class NavigationController:
         self.show_date_inventory_view()
 
     def show_date_inventory_view(self):
-        self.date_inventory_controller = DateInventoryController(self, self.settings, self.database_connection, self.app_state)
+        self.date_inventory_controller = DateInventoryController(self, self.settings, self.database_connection)
         self.date_inventory_controller.show()
 
     def show_store_view(self, inventory_date):
