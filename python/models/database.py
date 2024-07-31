@@ -29,5 +29,17 @@ class Database:
             df = None
         return df
 
+    def update_query_date(self, date: str) -> None:
+        self.query_manager.set_date(date)
+        self.query_manager.set_default_queries()
+
+    def update_query_stores(self, stores):
+        self.query_manager.set_stores(stores)
+        self.query_manager.set_default_queries()
+
+    def update_query_products(self, products):
+        self.query_manager.set_products()
+        self.query_manager.set_default_queries()
+
     def close(self):
         self.connection_manager.close()

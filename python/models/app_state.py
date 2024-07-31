@@ -14,11 +14,14 @@ class AppState:
     
     def set_inventory_date(self, date):
         self.inventory_date = date
+
+    def get_inventory_date(self):
+        return self.inventory_date
     
     def set_inventory_data(self, data):
         self.inventory_data = data
         self.filtered_inventory_data = data
-    
+
     def filter_stores(self, store_codes):
         self.filtered_inventory_data = self.filtered_inventory_data[self.filtered_inventory_data['store_code'].isin(store_codes)]
     
@@ -30,9 +33,15 @@ class AppState:
     
     def set_store_dimensions(self, data):
         self.store_dimensions = data
+
+    def get_store_dimensions(self):
+        return self.store_dimensions
     
     def set_product_dimensions(self, data):
         self.product_dimensions = data
+
+    def get_product_dimensions(self):
+        return self.product_dimensions
     
     def finalize(self):
         self.end_time = datetime.now()
