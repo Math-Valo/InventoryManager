@@ -12,7 +12,6 @@ class CapacityController:
         self.df_store_filtered = self.df_store[self.df_store["Canal"] == "TIENDAS PROPIAS"]
         self.df_store_filtered["ShortName"] = \
             self.df_store_filtered["NombreAlmacen"].str.replace("ABITO ", "").str.replace("AEROPUERTO ", "")
-        self.df_store_filtered["StockTotal"] = 1
 
         self.view = CapacityWindow(self.df_store_filtered)
         self.setup_connections()

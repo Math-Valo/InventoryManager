@@ -39,15 +39,9 @@ class CapacityWindow(QWidget):
         button_layout.addWidget(self.continue_button)
         layout.addLayout(button_layout)
 
-        # Agregar datos de ejemplo
+        # Agregar los datos a la tabla 
         self.populate_table()
-        # Connect the valueChanged signal to update colors
-        """
-        for row in range(self.table.rowCount()):
-            spinbox = self.table.cellWidget(row, 1)
-            spinbox.valueChanged.connect(lambda _, r=row: self.update_ropa_total_colors(r))
-        """
-    
+
     def populate_table(self):
         for row, item in self.df_store.iterrows():
             store_item = QTableWidgetItem(f"{item['CodAlmacen']} - {item['ShortName']}")
@@ -61,9 +55,9 @@ class CapacityWindow(QWidget):
             spinbox.setValue(item["Capacidad"])
             self.table.setCellWidget(row, 1, spinbox)
 
-            stock_item = QTableWidgetItem(str(item["StockTotal"]))
+            stock_item = QTableWidgetItem(str(item["Stock"]))
             stock_item.setFlags(Qt.ItemIsEnabled)  # No editable
-            self.set_stock_color(stock_item, item["Capacidad"], item["StockTotal"])
+            self.set_stock_color(stock_item, item["Capacidad"], item["Stock"])
             self.table.setItem(row, 2, stock_item)
 
     def set_stock_color(self, item, capacity, stock):
@@ -82,7 +76,7 @@ if __name__ == "__main__":
                                            "CANCUN LAS AMERICAS",
                                            "ABITO VILLAHERMOSA"],
                              "Capacidad": [1600, 1450, 1400],
-                             "StockTotal": [1600, 1600, 1600]})
+                             "Stock": [1600, 1600, 1600]})
 
     window = CapacityWindow(df_store)
     window.show()

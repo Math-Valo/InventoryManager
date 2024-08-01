@@ -48,7 +48,8 @@ class QueryManager:
             "product_code": "SKU",
             "product_brand": "Marca",
             "product_group": "Grupo",
-            "product_code_without_size": "Agrupador"
+            "product_code_without_size": "Agrupador",
+            "product_family": "Familia"
         }
 
     def set_default_queries(self) -> None:
@@ -75,28 +76,28 @@ class QueryManager:
         query = \
         f"""
             SELECT
-                *
+                s.*
             FROM
-                {self.tables["store"]}
+                {self.tables["store"]} s
             WHERE
-                {self.columns["store_brand"]} = '{condition_store_brand}'
+                s.{self.columns["store_brand"]} = '{condition_store_brand}'
                 AND
-                {self.columns["store_name"]} NOT LIKE '{condition_store_substring_name_1}'
+                s.{self.columns["store_name"]} NOT LIKE '{condition_store_substring_name_1}'
                 AND
                 (
-                    {self.columns["store_channel"]} = '{condition_store_channel}'
+                    s.{self.columns["store_channel"]} = '{condition_store_channel}'
                     OR
-                    {self.columns["store_name"]} LIKE '{condition_store_substring_name_2}'
+                    s.{self.columns["store_name"]} LIKE '{condition_store_substring_name_2}'
                 )
             ORDER BY
-                {self.columns["store_code"]}
+                s.{self.columns["store_code"]}
         """
         if self.args["date"] != "":
             cut = re.search(r"\n(?=(\s+|\t+)ORDER BY)", query).start()
             additional_condition = \
             f"""
                 AND
-                {self.columns["store_code"]} IN
+                s.{self.columns["store_code"]} IN
                 (
                     SELECT
                         {self.columns["inventories_store"]}
@@ -105,6 +106,48 @@ class QueryManager:
                     WHERE
                         {self.columns["inventories_date"]} = '{self.args["date"]}'
                 )"""
+            query = query[:cut] + additional_condition + query[cut:]
+
+            cut = re.search(r"\n(?=(\s+|\t+)FROM)", query).start()
+            new_name_for_stock = "Stock"
+            additional_condition = \
+            f"""
+                , COALESCE(i.TotalInventories, 0) AS {new_name_for_stock}"""
+            query = query[:cut] + additional_condition + query[cut:]
+
+            cut = re.search(r"\n(?=(\s+|\t+)WHERE)", query).start()
+            condition_product_brand = "ABITO"
+            condition_product_group = "ROPA"
+            condition_product_family_1 = "ZAPATO"
+            condition_product_family_2 = "ZAPATOS"
+            additional_condition = \
+            f"""
+            LEFT JOIN
+                (
+                SELECT
+                    i.{self.columns["inventories_store"]},
+                    SUM(i.{self.columns["inventories_pieces"]}) AS TotalInventories
+                FROM
+                    {self.tables["inventories"]} i
+                LEFT JOIN
+                    {self.tables["product"]} p
+                ON
+                    i.{self.columns["inventories_product"]} = p.{self.columns["product_code"]}
+                WHERE
+                    i.{self.columns["inventories_date"]} = '{self.args["date"]}'
+                    AND
+                    p.{self.columns["product_brand"]} = '{condition_product_brand}'
+                    AND
+                    p.{self.columns["product_group"]} = '{condition_product_group}'
+                    AND
+                    p.{self.columns["product_family"]} <> '{condition_product_family_1}'
+                    AND
+                    p.{self.columns["product_family"]} <> '{condition_product_family_2}'
+                GROUP BY
+                    i.{self.columns["inventories_store"]}
+                ) i
+            ON
+                s.{self.columns["store_code"]} = i.{self.columns["inventories_store"]}"""
             query = query[:cut] + additional_condition + query[cut:]
         self.queries["stores_in_inventory"] = query
 

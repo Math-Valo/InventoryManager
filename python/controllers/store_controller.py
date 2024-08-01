@@ -45,7 +45,7 @@ class StoreController:
     
     def update_selected_stores(self):
         headers = ["CodAlmacen", "ShortName", "Region", "Ciudad", "Zona",
-                  "ClasificacionVentaTotal", "TamanoTienda", "Capacidad"]
+                  "ClasificacionVentaTotal", "TamanoTienda", "Capacidad", "Stock"]
         selected_stores = self.get_stores_list()
         query = "CodAlmacen in "+selected_stores.__str__()
         df_selected_stores = self.df_store_filtered[headers].query(query)
