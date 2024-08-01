@@ -60,7 +60,7 @@ class StoreController:
 
     def continue_to_next_window(self):
         selected_stores = self.get_stores_list()
-        query = "CodAlmacen in "+selected_stores.__str__()
+        query = "CodAlmacen in "+selected_stores.__str__()+" or Canal != 'TIENDAS PROPIAS'"
         df_selected_stores = self.df_store.query(query).reset_index()
         self.app_state.set_store_dimensions(df_selected_stores)
         self.connection.update_query_stores(selected_stores)
