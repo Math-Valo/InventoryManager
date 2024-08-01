@@ -33,6 +33,7 @@ class DateInventoryController:
         self.connection.update_query_date(date)
         self.app_state.set_store_dimensions(self.get_store_dimension())
         self.navigation_controller.show_store_view(self.app_state, self.connection)
+        self.close()
 
     def get_date(self):
         return self.view.date_edit.date().toString("yyyy-MM-dd")

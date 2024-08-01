@@ -41,6 +41,7 @@ class QueryManager:
             "sales_pieces": "PiezasVendidas",
 
             "store_code": "CodAlmacen",
+            "store_name": "NombreAlmacen",
             "store_channel": "Canal",
             "store_brand": "Marca",
 
@@ -69,6 +70,8 @@ class QueryManager:
     def set_store_query(self):
         condition_store_channel = "TIENDAS PROPIAS"
         condition_store_brand = "ABITO"
+        condition_store_substring_name_1 = "%OUTLET%"
+        condition_store_substring_name_2 = "%PRODUCTO TERMINADO%"
         query = \
         f"""
             SELECT
@@ -76,9 +79,15 @@ class QueryManager:
             FROM
                 {self.tables["store"]}
             WHERE
-                {self.columns["store_channel"]} = '{condition_store_channel}'
-                AND
                 {self.columns["store_brand"]} = '{condition_store_brand}'
+                AND
+                {self.columns["store_name"]} NOT LIKE '{condition_store_substring_name_1}'
+                AND
+                (
+                    {self.columns["store_channel"]} = '{condition_store_channel}'
+                    OR
+                    {self.columns["store_name"]} LIKE '{condition_store_substring_name_2}'
+                )
             ORDER BY
                 {self.columns["store_code"]}
         """

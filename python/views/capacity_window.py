@@ -35,8 +35,8 @@ class CapacityWindow(QWidget):
         # Agregar botón "Siguiente >>>"
         button_layout = QHBoxLayout()
         button_layout.addStretch()
-        self.next_button = QPushButton("Siguiente >>>")
-        button_layout.addWidget(self.next_button)
+        self.continue_button = QPushButton("Siguiente >>>")
+        button_layout.addWidget(self.continue_button)
         layout.addLayout(button_layout)
 
         # Agregar datos de ejemplo
@@ -50,7 +50,7 @@ class CapacityWindow(QWidget):
     
     def populate_table(self):
         for row, item in self.df_store.iterrows():
-            store_item = QTableWidgetItem(f"{item['CodAlmacen']} - {item['NombreAlmacen']}")
+            store_item = QTableWidgetItem(f"{item['CodAlmacen']} - {item['ShortName']}")
             store_item.setFlags(Qt.ItemIsEnabled)  # No editable
             self.table.setItem(row, 0, store_item)
 
@@ -73,23 +73,14 @@ class CapacityWindow(QWidget):
         else:
             item.setForeground(QColor('black'))
 
-    def update_stock_colors(self, row):
-        capacity = self.table.cellWidget(row, 1).value()
-        ropa_total = int(self.table.item(row, 2).text())
-        ropa_total_item = self.table.item(row, 2)
-        self.set_stock_color(ropa_total_item, capacity, ropa_total)
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     import pandas as pd
     df_store = pd.DataFrame({"CodAlmacen": ["007", "008", "009"],
-                             "NombreAlmacen": ["FIESTA AMERICANA",
-                                               "CANCUN LAS AMERICAS",
-                                               "ABITO VILLAHERMOSA"],
-                             "Tiendas": ["007 - FIESTA AMERICANA",
-                                         "008 - CANCUN LAS AMERICAS",
-                                         "009 - ABITO VILLAHERMOSA"],
+                             "ShortName": ["FIESTA AMERICANA",
+                                           "CANCUN LAS AMERICAS",
+                                           "ABITO VILLAHERMOSA"],
                              "Capacidad": [1600, 1450, 1400],
                              "StockTotal": [1600, 1600, 1600]})
 

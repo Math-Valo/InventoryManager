@@ -15,6 +15,7 @@ class StoreWindow(QWidget):
 
     def setup_ui(self):
         self.setWindowTitle("Tiendas a nivelar")
+        self.setGeometry(100, 100, 1600, 800)
 
         # Layout principal
         layout = QVBoxLayout()

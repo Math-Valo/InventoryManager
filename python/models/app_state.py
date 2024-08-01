@@ -32,7 +32,8 @@ class AppState:
         self.sales_data = data
     
     def set_store_dimensions(self, data):
-        self.store_dimensions = data
+        data.loc[data["Capacidad"].isnull(), "Capacidad"]=0
+        self.store_dimensions = data.astype({"Capacidad": "int32"})
 
     def get_store_dimensions(self):
         return self.store_dimensions

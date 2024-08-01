@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QApplication
 from controllers.cover_controller import CoverController
 from controllers.date_inventory_controller import DateInventoryController
 from controllers.store_controller import StoreController
+from controllers.capacity_controller import CapacityController
 from models.app_state import AppState
 
 
@@ -29,20 +30,22 @@ class NavigationController:
     def show_store_view(self, app_state, connection):
         self.app_state = app_state
         self.database_connection = connection
-        self.date_inventory_controller.close()
         self.store_controller = StoreController(self, self.settings, self.database_connection, self.app_state)
+
+    def show_capacity_view(self, app_state, connection):
+        self.app_state = app_state
+        self.database_connection = connection
+        self.capacity_controller = CapacityController(self, self.settings, self.database_connection, self.app_state)
 
     def show_product_view(self, app_state, connection):
         self.app_state = app_state
         self.database_connection = connection
-        self.store_controller.close()
-        print("Fecha")
-        print(self.app_state.get_inventory_date())
-        print("Tiendas")
-        print(self.app_state.get_store_dimensions())
-        print("Productos")
-        print(self.app_state.get_product_dimensions())
-
+        # print("Fecha")
+        # print(self.app_state.get_inventory_date())
+        # print("Tiendas")
+        # print(self.app_state.get_store_dimensions())
+        # print("Productos")
+        # print(self.app_state.get_product_dimensions())
         self.exit_application()
 
     def exit_application(self):
