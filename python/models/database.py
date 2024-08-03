@@ -38,7 +38,7 @@ class Database:
         self.query_manager.set_default_queries()
 
     def update_query_products(self, products):
-        self.query_manager.set_products()
+        self.query_manager.set_products(products)
         self.query_manager.set_default_queries()
 
     def close(self):

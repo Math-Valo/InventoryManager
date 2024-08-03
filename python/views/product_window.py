@@ -21,12 +21,12 @@ class ProductWindow(QWidget):
         # Layout horizontal con la etiqueta, cuadro de texto y botón de búsqueda
         search_layout = QHBoxLayout()
         search_label = QLabel("Consulta:")
-        search_box = QLineEdit()
+        self.search_box = QLineEdit()
         query_ejemplo = "\"(Agrupador == 'P-V 24' | Agrupador == 'P-V 24') & Costo > 200\""
-        search_box.setPlaceholderText("Ingrese query (ejemplo: " + query_ejemplo + ")")
+        self.search_box.setPlaceholderText("Ingrese query (ejemplo: " + query_ejemplo + ")")
         self.search_button = QPushButton("Buscar")
         search_layout.addWidget(search_label)
-        search_layout.addWidget(search_box)
+        search_layout.addWidget(self.search_box)
         search_layout.addWidget(self.search_button)
         main_layout.addLayout(search_layout)
 
@@ -35,27 +35,30 @@ class ProductWindow(QWidget):
         main_layout.addWidget(self.table_view)
 
         # Modelo de datos
-        model = QStandardItemModel()
-        model.setHorizontalHeaderLabels(self.df_product.columns)
-        for row in self.df_product.itertuples(index=False):
-            items = [QStandardItem(str(item)) for item in row]
-            model.appendRow(items)
-        
+        self.model = QStandardItemModel()
+        self.update_selected_products(self.df_product)
+
         # Modelo Proxy para filtrar
         proxy_model = QSortFilterProxyModel()
-        proxy_model.setSourceModel(model)
+        proxy_model.setSourceModel(self.model)
         proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.table_view.setModel(proxy_model)
         # Ajuste del tamaño de columnas
         self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # Botón para cargar la tabla a la salida y continuar a la siguiente ventana
-        self.output_button = QPushButton("Continuar >>>")
-        self.output_button.setIconSize(QSize(16, 16))
-        self.output_button.setCheckable(False)
-        main_layout.addWidget(self.output_button)
+        self.continue_button = QPushButton("Continuar >>>")
+        self.continue_button.setIconSize(QSize(16, 16))
+        self.continue_button.setCheckable(False)
+        main_layout.addWidget(self.continue_button)
 
         self.setLayout(main_layout)
+
+    def update_selected_products(self, df_product):
+        self.model.setHorizontalHeaderLabels(df_product.columns)
+        for row in df_product.itertuples(index=False):
+            items = [QStandardItem(str(item)) for item in row]
+            self.model.appendRow(items)
 
 
 if __name__ == "__main__":

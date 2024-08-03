@@ -3,6 +3,7 @@ from controllers.cover_controller import CoverController
 from controllers.date_inventory_controller import DateInventoryController
 from controllers.store_controller import StoreController
 from controllers.capacity_controller import CapacityController
+from controllers.product_controller import ProductController
 from models.app_state import AppState
 
 
@@ -40,12 +41,11 @@ class NavigationController:
     def show_product_view(self, app_state, connection):
         self.app_state = app_state
         self.database_connection = connection
-        # print("Fecha")
-        # print(self.app_state.get_inventory_date())
-        # print("Tiendas")
-        # print(self.app_state.get_store_dimensions())
-        # print("Productos")
-        # print(self.app_state.get_product_dimensions())
+        self.product_controller = ProductController(self, self.settings, self.database_connection, self.app_state)
+
+    def phase_1(self, app_state, connection):
+        self.app_state = app_state
+        self.database_connection = connection
         self.exit_application()
 
     def exit_application(self):
@@ -54,8 +54,3 @@ class NavigationController:
     def run(self):
         self.cover_controller.show()
         self.app.exec_()
-
-    # Mala práctica: navigation_controller debe de ser para navegar de una ventana a otra,
-    # no para obtener datos y actualizar valores al app_state
-    def get_inventory_and_sales_data(self):
-        query = "inventories_and_sales"

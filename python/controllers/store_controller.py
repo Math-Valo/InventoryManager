@@ -36,6 +36,7 @@ class StoreController:
         if checked:
             for store in self.df_store_filtered[self.df_store_filtered["Region"]==region]["CodAlmacen"].tolist():
                 if not self.view.stores[store].isChecked():
+                    self.update_selected_stores()
                     return None
             self.view.regions[region].setChecked(True)
         else:
@@ -62,6 +63,7 @@ class StoreController:
         selected_stores = self.get_stores_list()
         query = "CodAlmacen in "+selected_stores.__str__()+" or Canal != 'TIENDAS PROPIAS'"
         df_selected_stores = self.df_store.query(query).reset_index()
+        selected_stores = df_selected_stores["CodAlmacen"].tolist()
         self.app_state.set_store_dimensions(df_selected_stores)
         self.connection.update_query_stores(selected_stores)
         self.app_state.set_product_dimensions(self.get_product_dimension())

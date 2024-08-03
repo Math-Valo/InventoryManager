@@ -3,13 +3,16 @@ from datetime import datetime
 
 class AppState:
     def __init__(self):
+        self.start_time = datetime.now()
         self.inventory_date = str()
+        self.store_dimensions = pd.DataFrame()
+        self.product_dimensions = pd.DataFrame()
+        self.inventory_and_sales_facts = pd.DataFrame()
+
         self.inventory_data = pd.DataFrame()
         self.filtered_inventory_data = pd.DataFrame()
         self.sales_data = pd.DataFrame()
-        self.store_dimensions = pd.DataFrame()
-        self.product_dimensions = pd.DataFrame()
-        self.start_time = datetime.now()
+
         self.end_time = None
     
     def set_inventory_date(self, date):
@@ -21,6 +24,13 @@ class AppState:
     def set_inventory_data(self, data):
         self.inventory_data = data
         self.filtered_inventory_data = data
+
+    def set_facts(self, data):
+        self.inventory_and_sales_facts = \
+            data.astype({"CurrentInventory": "int32"}).astype({"AnnualSales": "int32"})
+
+    def get_facts(self):
+        return self.inventory_and_sales_facts.copy()
 
     def filter_stores(self, store_codes):
         self.filtered_inventory_data = self.filtered_inventory_data[self.filtered_inventory_data['store_code'].isin(store_codes)]

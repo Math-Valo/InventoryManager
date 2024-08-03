@@ -38,7 +38,7 @@ class QueryManager:
             "sales_date": "Fecha",
             "sales_store": "CodAlmacen",
             "sales_product": "SKU",
-            "sales_pieces": "PiezasVendidas",
+            "sales_pieces": "Piezas",
 
             "store_code": "CodAlmacen",
             "store_name": "NombreAlmacen",
@@ -154,6 +154,8 @@ class QueryManager:
     def set_product_query(self):
         condition_product_brand = "ABITO"
         condition_product_group = "ROPA"
+        condition_product_family_1 = "ZAPATO"
+        condition_product_family_2 = "ZAPATOS"
         query = \
         f"""
             SELECT
@@ -164,14 +166,18 @@ class QueryManager:
                 {self.columns["product_brand"]} = '{condition_product_brand}'
                 AND
                 {self.columns["product_group"]} = '{condition_product_group}'
+                AND
+                {self.columns["product_family"]} <> '{condition_product_family_1}'
+                AND
+                {self.columns["product_family"]} <> '{condition_product_family_2}'
             ORDER BY
                 {self.columns["product_code"]}
         """
         if self.args["date"] != "" or len(self.args["stores"]) > 0:
             cut = re.search(r"\n(?=(\s+|\t+)ORDER BY)", query).start()
+            str_stores = self.args['stores'].__str__().replace("[","(").replace("]",")")
             condition_date = f"{self.columns['inventories_date']} = '{self.args['date']}'"
-            condition_store = f"{self.columns['inventories_store']} IN {self.args['stores'].__str__()}"
-            condition_store = condition_store.replace("[","(").replace("]",")")
+            condition_store = f"{self.columns['inventories_store']} IN {str_stores}"
             if self.args["date"] == "":
                 condition_inventories = f"""
                         {condition_store}"""
@@ -199,91 +205,89 @@ class QueryManager:
         self.queries["products_in_inventory"] = query
 
     def set_inventory_and_sales_query(self):
-        if self.args["date"] == "":
+        if self.args["date"] == "" or len(self.args["stores"]) == 0 or len(self.args["products"]) == 0:
             return None
-        if  len(self.args["stores"]) == 0 and len(self.args["products"]) == 0:
-            total_inventories_pieces = "TotalPieces"
-            total_sales_pieces = "TotalPieces"
-            str_stores = self.args['stores'].__str__().replace("[","(").replace("]",")")
-            str_products = self.args['products'].__str__().replace("[","(").replace("]",")")
-            query = \
-            f"""
+        total_inventories_pieces = "TotalPieces"
+        total_sales_pieces = "TotalPieces"
+        str_stores = self.args['stores'].__str__().replace("[","(").replace("]",")")
+        str_products = self.args['products'].__str__().replace("[","(").replace("]",")")
+        query = \
+        f"""
+            SELECT
+                c.{self.columns["store_code"]},
+                c.{self.columns["product_code"]},
+                COALESCE(i.{total_inventories_pieces}, 0) AS CurrentInventory,
+                COALESCE(v.{total_sales_pieces}, 0) AS AnnualSales
+            FROM
+                (
                 SELECT
-                    c.{self.columns["store_code"]},
-                    c.{self.columns["product_code"]},
-                    COALESCE(i.{total_inventories_pieces}, 0) AS TotalInventories,
-                    COALESCE(v.{total_sales_pieces}, 0) AS TotalSales
-                    FROM
+                    s.{self.columns["store_code"]},
+                    p.{self.columns["product_code"]}
+                FROM
+                    {self.tables["store"]} s
+                CROSS JOIN
+                    {self.tables["product"]} p
+                WHERE
+                    s.{self.columns["store_code"]} IN {str_stores}
+                    AND
+                    p.{self.columns["product_code_without_size"]}
+                    IN
                     (
                     SELECT
-                        s.{self.columns["store_code"]}
-                        p.{self.columns["product_code"]}
-                    FROM
-                        {self.tables["store"]} s
-                    CROSS JOIN
-                        {self.tables["product"]} P
-                    WHERE
-                        s.{self.columns["store_code"]} IN {str_stores}
-                        AND
-                        p.{self.columns["product_code_without_size"]}
-                        IN
-                        (
-                        SELECT
-                            {self.columns["product_code_without_size"]}
-                        FROM
-                            {self.tables["product"]}
-                        WHERE
-                            {self.columns["product_code"]} IN {str_products}
-                        )
-
-                    ) c
-                LEFT JOIN
-                    (
-                    SELECT
-                        {self.columns["inventories_store"]},
-                        {self.columns["inventories_product"]},
-                        SUM({self.columns["inventories_pieces"]}) AS {total_inventories_pieces}
+                        DISTINCT {self.columns["product_code_without_size"]}
                     FROM
                         {self.tables["product"]}
                     WHERE
-                        {self.columns["inventories_date"]} = '{self.args["date"]}'
-                        AND
-                        {self.columns["inventories_pieces"]} > 0
-                    GROUP BY
-                        {self.columns["inventories_store"]},
-                        {self.columns["inventories_product"]}
-                    ) i
-                ON
-                    c.{self.columns["store_code"]} = i.{self.columns["inventories_store"]}
+                        {self.columns["product_code"]} IN {str_products}
+                    )
+                ) c
+            LEFT JOIN
+                (
+                SELECT
+                    {self.columns["inventories_store"]},
+                    {self.columns["inventories_product"]},
+                    SUM({self.columns["inventories_pieces"]}) AS {total_inventories_pieces}
+                FROM
+                    {self.tables["inventories"]}
+                WHERE
+                    {self.columns["inventories_date"]} = '{self.args["date"]}'
                     AND
-                    c.{self.columns["product_code"]} = i.{self.columns["inventories_product"]}
-                LEFT JOIN
-                    (
-                    SELECT
-                        {self.columns["sales_store"]},
-                        {self.columns["inventories_product"]},
-                        SUM({self.columns["sales_pieces"]}) AS {total_sales_pieces}
-                    FROM
-                        {self.tables["sales"]}
-                    WHERE
-                        {self.columns["sales_date"]}
-                        BETWEEN
-                        DATE_SUB('{self.args["date"]}', INTERVAL 1 YEAR)
-                        AND 
-                        '{self.args["date"]}'
-                    GROUP BY
-                        {self.columns["sales_store"]},
-                        {self.columns["sales_product"]}
-                    ) v
-                ON
-                    c.{self.columns["store_code"]} = i.{self.columns["sales_store"]}
-                    AND
-                    c.{self.columns["product_code"]} = i.{self.columns["sales_product"]}
-                ORDER BY
-                    {self.columns["store_code"]},
-                    {self.columns["product_code"]}
-            """
-            self.queries["inventories_and_sales"] = query
+                    {self.columns["inventories_pieces"]} > 0
+                GROUP BY
+                    {self.columns["inventories_store"]},
+                    {self.columns["inventories_product"]}
+                ) i
+            ON
+                c.{self.columns["store_code"]} = i.{self.columns["inventories_store"]}
+                AND
+                c.{self.columns["product_code"]} = i.{self.columns["inventories_product"]}
+            LEFT JOIN
+                (
+                SELECT
+                    {self.columns["sales_store"]},
+                    {self.columns["sales_product"]},
+                    SUM({self.columns["sales_pieces"]}) AS {total_sales_pieces}
+                FROM
+                    {self.tables["sales"]}
+                WHERE
+                    {self.columns["sales_date"]}
+                    BETWEEN
+                    DATE_SUB('{self.args["date"]}', INTERVAL 1 YEAR)
+                    AND 
+                    '{self.args["date"]}'
+                GROUP BY
+                    {self.columns["sales_store"]},
+                    {self.columns["sales_product"]}
+                ) v
+            ON
+                c.{self.columns["store_code"]} = v.{self.columns["sales_store"]}
+                AND
+                c.{self.columns["product_code"]} = v.{self.columns["sales_product"]}
+            ORDER BY
+                c.{self.columns["store_code"]},
+                c.{self.columns["product_code"]}
+        """
+        self.queries["inventories_and_sales"] = query
 
     def get_query(self, query: str) -> str:
         return self.queries.get(query)
