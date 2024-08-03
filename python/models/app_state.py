@@ -7,12 +7,7 @@ class AppState:
         self.inventory_date = str()
         self.store_dimensions = pd.DataFrame()
         self.product_dimensions = pd.DataFrame()
-        self.inventory_and_sales_facts = pd.DataFrame()
-
-        self.inventory_data = pd.DataFrame()
-        self.filtered_inventory_data = pd.DataFrame()
-        self.sales_data = pd.DataFrame()
-
+        self.df_facts = pd.DataFrame()
         self.end_time = None
     
     def set_inventory_date(self, date):
@@ -20,40 +15,53 @@ class AppState:
 
     def get_inventory_date(self):
         return self.inventory_date
-    
-    def set_inventory_data(self, data):
-        self.inventory_data = data
-        self.filtered_inventory_data = data
 
-    def set_facts(self, data):
-        self.inventory_and_sales_facts = \
-            data.astype({"CurrentInventory": "int32"}).astype({"AnnualSales": "int32"})
-
-    def get_facts(self):
-        return self.inventory_and_sales_facts.copy()
-
-    def filter_stores(self, store_codes):
-        self.filtered_inventory_data = self.filtered_inventory_data[self.filtered_inventory_data['store_code'].isin(store_codes)]
-    
-    def filter_products(self, product_codes):
-        self.filtered_inventory_data = self.filtered_inventory_data[self.filtered_inventory_data['product_code'].isin(product_codes)]
-    
-    def set_sales_data(self, data):
-        self.sales_data = data
-    
     def set_store_dimensions(self, data):
         data.loc[data["Capacidad"].isnull(), "Capacidad"]=0
         data.loc[data["Stock"].isnull(), "Stock"]=0
         self.store_dimensions = data.astype({"Capacidad": "int32"}).astype({"Stock": "int32"})
 
     def get_store_dimensions(self):
-        return self.store_dimensions
+        return self.store_dimensions.copy()
     
     def set_product_dimensions(self, data):
         self.product_dimensions = data
 
     def get_product_dimensions(self):
-        return self.product_dimensions
+        return self.product_dimensions.copy()
     
+    def set_facts(self, data):
+        self.df_facts = data.astype({"CurrentInventory": "int32"}).astype({"AnnualSales": "int32"})
+
+    def get_facts(self):
+        return self.df_facts.copy()
+
+    def clean_data(self):
+        # 0. Crear variables útiles para el proceso
+        stores = self.store_dimensions.loc[self.store_dimensions["Canal"] == "TIENDAS PROPIAS", "CodAlmacen"].tolist()
+        wholesales = self.store_dimensions.loc[self.store_dimensions["Canal"] != "TIENDAS PROPIAS", "CodAlmacen"].tolist()
+        df = self.df_facts[self.df_facts["CodAlmacen"].isin(stores)
+                           ].reset_index().merge(self.product_dimensions[["SKU", "Agrupador"]], on=["SKU"])
+        df = df[["CodAlmacen", "Agrupador", "SKU", "CurrentInventory", "AnnualSales"]
+                ].sort_values(by=["CodAlmacen", "Agrupador", "SKU"])
+        # 1. Eliminar agrupadores sin stock en una copia del DataFrame (Agrupador: SKU sin la diferenciación por talla)
+        df_grouper = df.groupby(["Agrupador"], as_index=False).agg({"CurrentInventory": "sum", "AnnualSales": "sum"})
+        df_simplified_grouper = df_grouper.loc[df_grouper["CurrentInventory"] != 0]
+        # 2. Obtener la lista de agrupadres que se usarán para filtrar
+        simplified_list = df_grouper["Agrupador"].tolist()
+        # 3. Realizar el filtrado en la copia del DataFrame de hechos con la lista de agrupadores
+        df = df.loc[df["Agrupador"].isin(simplified_list)].reset_index(drop=True)
+        # 4. Eliminar prendas sin ventas ni stock por cada pareja tienda/agrupador en la copia del DataFrame
+        df_store_grouper = df.groupby(["CodAlmacen", "Agrupador"], as_index=False
+                                      ).agg({"CurrentInventory": "sum", "AnnualSales": "sum"})
+        df_simplified_store_grouper = \
+            df_store_grouper.loc[df_store_grouper[["CurrentInventory", "AnnualSales"]].sum(axis=1) !=  0]
+        # 5. Se obtienen las tuplas de tiendas/agrupador y almmacén/agrupador que se usará para filtrar el DataFrame de hechos.
+        simplified_tuples = list(df_simplified_store_grouper[["CodAlmacen", "Agrupador"]].apply(tuple,axis=1))
+        for wholesale in wholesales:
+            simplified_tuples += [(wholesale, grouper) for grouper in df_simplified_store_grouper["Agrupador"].unique()]
+        # 6. Se realiza el filtrado en el DataFrame de hechos con las tuplas tienda/agrupador.
+        self.df_facts = df.loc[df[["CodAlmacen", "Agrupador"]].apply(tuple, axis=1).isin(simplified_tuples)].reset_index(drop=True)
+
     def finalize(self):
         self.end_time = datetime.now()

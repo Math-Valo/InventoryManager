@@ -30,16 +30,13 @@ class ProductController:
         self.view.model.clear()
         self.view.update_selected_products(self.df_product_filtered)
 
-    def get_products_list(self):
-        groupers = self.df_product_filtered["Agrupador"].tolist()
-        return self.df_product_filtered["SKU"].tolist()
-
     def continue_to_next_window(self):
-        selected_products = self.get_products_list()  # Estos productos incluyen todos los agrupadores
-        self.app_state.set_product_dimensions(self.df_product[self.df_product["SKU"].isin(selected_products)
-                                                              ].reset_index())
+        selected_products = self.df_product_filtered["SKU"].tolist()  # Estos productos incluyen todos los agrupadores
+        df_selected_product = self.df_product[self.df_product["SKU"].isin(selected_products)].reset_index(drop=True)
+        self.app_state.set_product_dimensions(df_selected_product)
         self.connection.update_query_products(selected_products)
         self.app_state.set_facts(self.get_facts())
+        self.app_state.clean_data()
         self.navigation_controller.phase_1(self.app_state, self.connection)
         self.close()
 

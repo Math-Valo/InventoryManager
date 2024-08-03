@@ -46,6 +46,7 @@ class NavigationController:
     def phase_1(self, app_state, connection):
         self.app_state = app_state
         self.database_connection = connection
+        self.app_state.get_facts().to_csv("facts.csv")
         self.exit_application()
 
     def exit_application(self):
