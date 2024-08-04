@@ -41,5 +41,9 @@ class Database:
         self.query_manager.set_products(products)
         self.query_manager.set_default_queries()
 
+    def update_query_store_product(self, store_product_tuples: list) -> None:
+        self.query_manager.set_store_product(store_product_tuples)
+        self.query_manager.set_default_queries()
+
     def close(self):
         self.connection_manager.close()

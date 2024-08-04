@@ -5,7 +5,8 @@ class QueryManager:
         self.args = {
             "date": "",
             "stores": [],
-            "products": []
+            "products": [],
+            "store_product": []
         }
         self.tables = dict()
         self.columns = dict()
@@ -20,6 +21,9 @@ class QueryManager:
     
     def set_products(self, product_codes: list) -> None:
         self.args["products"] = product_codes
+
+    def set_store_product(self, store_product_codes: list) -> None:
+        self.args["store_product"] = store_product_codes
 
     def default_names(self) -> None:
         self.tables = {
@@ -57,6 +61,7 @@ class QueryManager:
         self.set_store_query()
         self.set_product_query()
         self.set_inventory_and_sales_query()
+        self.set_kpis_query()
 
     def set_date_query(self):
         query = \
@@ -288,6 +293,35 @@ class QueryManager:
                 c.{self.columns["product_code"]}
         """
         self.queries["inventories_and_sales"] = query
+
+    def set_kpis_query(self):
+        if self.args["date"] == "" or len(self.args["store_product"]) == 0:
+            return None
+        # 0. Definición de variables que serán útiles
+        store_product_str = self.args["store_product"].__str__().replace("[", "(").replace("]", ")")
+        # 1. Ventas del último trimestre
+        total_sales_pieces = "TotalPieces"
+        query = \
+        f"""
+            SELECT
+                {self.columns["sales_store"]},
+                {self.columns["sales_product"]},
+                COALESCE(SUM({self.columns["sales_pieces"]}), 0) AS QuarterlyPieceSales
+            FROM
+                {self.tables["sales"]}
+            WHERE
+                {self.columns["sales_date"]}
+                BETWEEN
+                DATE_SUB('{self.args["date"]}', INTERVAL 3 MONTH)
+                AND
+                '{self.args["date"]}'
+                AND
+                ({self.columns["sales_store"]}, {self.columns["sales_product"]}) IN {store_product_str}
+            GROUP BY
+                {self.columns["sales_store"]},
+                {self.columns["sales_product"]}
+        """
+        self.queries["quarter_sales"] = query
 
     def get_query(self, query: str) -> str:
         return self.queries.get(query)

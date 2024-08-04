@@ -63,5 +63,25 @@ class AppState:
         # 6. Se realiza el filtrado en el DataFrame de hechos con las tuplas tienda/agrupador.
         self.df_facts = df.loc[df[["CodAlmacen", "Agrupador"]].apply(tuple, axis=1).isin(simplified_tuples)].reset_index(drop=True)
 
+    def setup_kpis(self, df_quarters = None):
+        # 1. Inventario actual
+        # self.df_facts["CurrentInventory"]
+        # 2. Ventas totales del último año
+        # self.df_facts["AnnualSales"]
+        # 3. Costo total del inventario actual
+        unit_cost_dictionary = pd.Series(self.product_dimensions["Costo"].values,
+                                         index=self.product_dimensions["SKU"]).to_dict()
+        self.df_facts["CurrentInventoryCost"] = \
+            self.df_facts["SKU"].map(unit_cost_dictionary).fillna(0)*self.df_facts["CurrentInventory"]
+        if df_quarters is not None:
+            # 4. Ventas totales del último trimestre
+            df_quarters = df_quarters.astype({"QuarterlyPieceSales": "int32"})
+            df_quarters.loc[df_quarters["QuarterlyPieceSales"] < 0, "QuarterlyPieceSales"] = 0
+            df_quarters["AvgMonthlySalesLastQuarter"] = df_quarters["QuarterlyPieceSales"]/3
+            self.df_facts = \
+                self.df_facts.merge(df_quarters[["CodAlmacen", "SKU", "AvgMonthlySalesLastQuarter"]], on=["CodAlmacen", "SKU"])
+            # 5. Cobertura
+            self.df_facts["Coverage"] = self.df_facts["CurrentInventory"]/self.df_facts["AvgMonthlySalesLastQuarter"]
+
     def finalize(self):
         self.end_time = datetime.now()

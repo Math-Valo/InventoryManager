@@ -33,15 +33,31 @@ class ProductController:
     def continue_to_next_window(self):
         selected_products = self.df_product_filtered["SKU"].tolist()  # Estos productos incluyen todos los agrupadores
         df_selected_product = self.df_product[self.df_product["SKU"].isin(selected_products)].reset_index(drop=True)
+        self.close()
+        print("Cargando datos")
         self.app_state.set_product_dimensions(df_selected_product)
         self.connection.update_query_products(selected_products)
         self.app_state.set_facts(self.get_facts())
         self.app_state.clean_data()
+        print("Fase_1: Determinación de los niveles por tiendas")
+        df_facts = self.app_state.get_facts()
+        store_product_tuples = df_facts[["CodAlmacen", "SKU"]].apply(tuple, axis=1).tolist()
+        self.connection.update_query_store_product(store_product_tuples)
+        self.app_state.setup_kpis(self.get_quarters())
+        
+
+        from models.phase_1 import Phase1
+        levels = Phase1(self.app_state.get_store_dimensions(),
+                       self.app_state.get_facts())
+        print(levels.store_profile)
         self.navigation_controller.phase_1(self.app_state, self.connection)
-        self.close()
 
     def get_facts(self):
         query = "inventories_and_sales"
+        return self.connection.execute_query(query)
+    
+    def get_quarters(self):
+        query = "quarter_sales"
         return self.connection.execute_query(query)
 
     def show(self):
