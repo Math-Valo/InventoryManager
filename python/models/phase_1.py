@@ -19,7 +19,7 @@ class Phase1:
         # Límite de prendas que se puede poner o quitar en una tienda
         self.maximum_movement_to_add = 100
         self.maximum_movement_to_remove = -100
-        # Límites inferior y superior para el rango del nivel respsecto al esperado
+        # Límites inferior y superior para el rango del nivel respecto al esperado
         self.range_lower_limite = -50
         self.range_upper_limite = 50
         # Intentos máximos para calcular los niveles

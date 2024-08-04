@@ -14,8 +14,8 @@ class ProductWindow(QWidget):
         self.setWindowTitle("Productos por nivelar")
         self.resize(1000, 600)
 
-        # Vista principal
-        main_layout = QVBoxLayout()  # QVBoxLayout(self.centralwidget)
+        # Layout principal
+        main_layout = QVBoxLayout()
 
         # Vista de búsqueda:
         # Layout horizontal con la etiqueta, cuadro de texto y botón de búsqueda
