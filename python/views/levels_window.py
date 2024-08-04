@@ -2,28 +2,31 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QA
                              QHeaderView, QLabel, QPushButton, QTableWidgetItem, QSpinBox)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
+import math
 
 class LevelsWindow(QWidget):
-    def __init__(self, results_phase_1) -> None:
+    def __init__(self, df_store_profile, results_phase_1) -> None:
         super().__init__()
-        self.df_store = results_phase_1.store_profile
+        self.df_store = df_store_profile
+        self.minimum_capacity_percentage = results_phase_1.minimum_capacity_percentage
+        self.maximum_capacity_percentage = results_phase_1.maximum_capacity_percentage
         self.minimum_acceptable_coverage = results_phase_1.minimum_acceptable_coverage
         self.maximum_acceptable_coverage = results_phase_1.maximum_acceptable_coverage
-        print(self.df_store)
         self.setup_ui()
 
     def setup_ui(self):
         self.setWindowTitle("Niveles calculados")
         # self.setGeometry(100, 100, 1600, 800)
-        self.resize(900, 600)
+        self.resize(1200, 800)
 
         # Layout principal
         layout = QVBoxLayout()
 
         # Crear la tabla para los datos
         self.table = QTableWidget()
-        self.table.setColumnCount(6)
-        self.table.setHorizontalHeaderLabels(["Tienda", "Capacidad", "Movimiento", "Inventario final", "Nivelado final", "Cobertura"])
+        self.table.setColumnCount(8)
+        self.table.setHorizontalHeaderLabels(["Tienda", "Stock mínimo", "Capacidad ideal", "Stock máximo",
+                                              "Movimiento", "Inventario final", "Nivelado final", "Cobertura"])
         self.table.setRowCount(len(self.df_store))
 
         # Hacer que la tabla permita el scrolling
@@ -36,6 +39,7 @@ class LevelsWindow(QWidget):
         # Agregar etiqueta que indica el fuera de nivel
         layout_total_level = QHBoxLayout()
         self.sum_expected_level = QLabel(f"Fuera de tienda = {self.df_store['ExpectedLevel'].sum()}")
+        self.set_total_levels_color(self.df_store['ExpectedLevel'].sum())
         layout_total_level.addWidget(self.sum_expected_level, alignment=Qt.AlignCenter)
         layout.addLayout(layout_total_level)
 
@@ -57,26 +61,36 @@ class LevelsWindow(QWidget):
             store_item.setFlags(Qt.ItemIsEnabled)  # No editable
             self.table.setItem(row, 0, store_item)
 
-            capacity_item = QTableWidgetItem(str(item["Capacidad"]))
+            minimum_capacity = math.ceil(item["Capacidad"]*self.minimum_capacity_percentage)
+            capacity_item = QTableWidgetItem(str(minimum_capacity))
             capacity_item.setFlags(Qt.ItemIsEnabled)  # No editable
             self.table.setItem(row, 1, capacity_item)
+
+            capacity_item = QTableWidgetItem(str(item["Capacidad"]))
+            capacity_item.setFlags(Qt.ItemIsEnabled)  # No editable
+            self.table.setItem(row, 2, capacity_item)
+
+            maximum_capacity = math.floor(item["Capacidad"]*self.maximum_capacity_percentage)
+            capacity_item = QTableWidgetItem(str(maximum_capacity))
+            capacity_item.setFlags(Qt.ItemIsEnabled)  # No editable
+            self.table.setItem(row, 3, capacity_item)
 
             # spinbox para modificar el valor del movimiento esperado
             spinbox_level = QSpinBox()
             spinbox_level.setMinimum(-99999)  # Valor mínimo del nivel final = -99999
             spinbox_level.setMaximum(99999)  # Valor máximo del nivel final = 99999
             spinbox_level.setValue(item["ExpectedLevel"])
-            self.table.setCellWidget(row, 2, spinbox_level)
+            self.table.setCellWidget(row, 4, spinbox_level)
 
             stock_item = QTableWidgetItem(str(item["Stock"] + item["ExpectedLevel"]))
             stock_item.setFlags(Qt.ItemIsEnabled)  # No editable
             self.set_stock_color(stock_item, item["Capacidad"], item["Stock"], item["ExpectedLevel"])
-            self.table.setItem(row, 3, stock_item)
+            self.table.setItem(row, 5, stock_item)
 
             fashion_stock_item = QTableWidgetItem(str(item["CurrentInventory"] + item["ExpectedLevel"]))
             fashion_stock_item.setFlags(Qt.ItemIsEnabled)  # No editable
             self.set_fashion_stock_color(fashion_stock_item, item["CurrentInventory"], item["ExpectedLevel"])
-            self.table.setItem(row, 4, fashion_stock_item)
+            self.table.setItem(row, 6, fashion_stock_item)
 
             if item["AvgMonthlySalesLastQuarter"] != 0:
                 new_coverage = (item["CurrentInventory"]+item["ExpectedLevel"])/item["AvgMonthlySalesLastQuarter"]
@@ -85,12 +99,14 @@ class LevelsWindow(QWidget):
             coverage_item = QTableWidgetItem(str(new_coverage))
             coverage_item.setFlags(Qt.ItemIsEnabled)  # No editable
             self.set_coverage_color(coverage_item, item["CurrentInventory"], item["AvgMonthlySalesLastQuarter"], item["ExpectedLevel"])
-            self.table.setItem(row, 5, coverage_item)
+            self.table.setItem(row, 7, coverage_item)
 
     def set_stock_color(self, item, capacity, stock, level):
         # Cambiar color de la etiqueta del stock a rojo si es mayor a la capacidad de la tienda
-        if stock + level > capacity:
+        if stock + level < capacity*self.minimum_capacity_percentage or stock + level > capacity*self.maximum_capacity_percentage:
             item.setForeground(QColor('red'))
+        elif stock + level > capacity:
+            item.setForeground(QColor('orange'))
         else:
             item.setForeground(QColor('black'))
 
@@ -111,6 +127,11 @@ class LevelsWindow(QWidget):
         else:
             item.setForeground(QColor('black'))
 
+    def set_total_levels_color(self, total_levels):
+        if total_levels != 0:
+            self.sum_expected_level.setStyleSheet("color: red")
+        else:
+            self.sum_expected_level.setStyleSheet("color: black")
 
 if __name__ == "__main__":
     import pandas as pd

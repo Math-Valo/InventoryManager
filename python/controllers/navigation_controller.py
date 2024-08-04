@@ -4,6 +4,7 @@ from controllers.date_inventory_controller import DateInventoryController
 from controllers.store_controller import StoreController
 from controllers.capacity_controller import CapacityController
 from controllers.product_controller import ProductController
+from controllers.levels_controller import LevelsController
 from models.app_state import AppState
 
 
@@ -14,6 +15,7 @@ class NavigationController:
         self.database_connection = None
         self.cover_controller = CoverController(self, settings)
         self.date_inventory_controller = None
+        self.levels = None
 
     def start_application(self, database_connection):
         self.settings = self.cover_controller.settings
@@ -47,6 +49,12 @@ class NavigationController:
         self.app_state = app_state
         self.database_connection = connection
         self.app_state.get_facts().to_csv("facts.csv")
+        self.levels_controller = LevelsController(self, self.settings, self.database_connection, self.app_state)
+
+    def phase_2(self, app_state, connection, levels):
+        self.app_state = app_state
+        self.database_connection = connection
+        self.levels = levels
         self.exit_application()
 
     def exit_application(self):

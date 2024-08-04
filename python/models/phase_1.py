@@ -35,12 +35,14 @@ class Phase1:
                                                                             x["CoverageClassification"],
                                                                             x["AvgMonthlySalesLastQuarter"],
                                                                             x["Capacidad"]), axis=1)
+        # print(self.store_profile)
         execution = 0
+        total_stores = self.store_profile.shape[0]
         while execution <= self.max_executions and not self.feasibility_test():
             movement = self.store_profile["ExpectedLevel"].sum()
             if movement < 0:  # Estamos quitando de más
                 # Se aumentará a las tiendas que más venden
-                for item in range(self.store_profile.shape[0]):
+                for item in range(total_stores):
                     # Esto funciona porque es prácticamente imposible tener exactamente la misma cantidad de ventas en 2 tiendas
                     level = self.store_profile.loc[self.store_profile["SortingSales"] == item+1,
                                                    "ExpectedLevel"].iloc[0]
@@ -57,7 +59,7 @@ class Phase1:
                         level += 1
                 if movement < 0:  # Es posible que aún repasando todas las tiendas aún no se cumplan los requisitos
                     # El mayor problema por el cual pasa esto es por respetar los límites de la cobertura. Vamos a ignorarlo.
-                    for item in range(self.store_profile.shape[0]):
+                    for item in range(total_stores):
                         level = self.store_profile.loc[self.store_profile["SortingSales"] == item+1,
                                                        "ExpectedLevel"].iloc[0]
                         capacity = self.store_profile.loc[self.store_profile["SortingSales"] == item+1,
@@ -74,14 +76,17 @@ class Phase1:
                     if movement < 0:
                         # Si ya aumentamos tood lo posible a cada tienda y aún se necesita aumentar, seguro es un tema de capacidades
                         print("Capacidades insuficientes para satisfacer las necesidades. Aumentar capacidades en las tiendas")
-                        sys.exit()
+                        break
+                        # sys.exit()
                     else:
                         # De cualquier forma, llegar acá implica que se ignoró las cobertura y se avisará al usuario de ello
                         print("Hay temas de cobertura que convendría que se examinen")
+                        break
             else:  # Estamos agregando prendas de más
                 # Se disminuirá a las tiendas que menos venden
-                total_stores = self.store_profile.shape[0]
-                for item in range(self.store_profile.shape[0]):
+                for item in range(total_stores):
+                    if self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item, "Special"].iloc[0]:
+                        continue
                     level = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
                                                    "ExpectedLevel"].iloc[0]
                     capacity = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
@@ -98,10 +103,36 @@ class Phase1:
                         self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
                                                "ExpectedLevel"] -= 1
                         level -= 1
-                if movement < 0:
+                if movement > 0:  # Es posible que aún repasando todas las tiendas aún no se cumplan los requisitos
+                    # El mayor problema por el cual pasa esto es por respetar los límites de la cobertura. Vamos a ignorarlo.
+                    for item in range(total_stores):
+                        if self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item, "Special"].iloc[0]:
+                            continue
+                        level = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                                       "ExpectedLevel"].iloc[0]
+                        capacity = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                                          "Capacidad"].iloc[0]
+                        available = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                                           "Available"].iloc[0]
+                        average_sale = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                                              "AvgMonthlySalesLastQuarter"].iloc[0]
+                        fashion_stock = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                                           "CurrentInventory"].iloc[0]
+                        while self.removing_level_test(level, capacity, available, average_sale, fashion_stock, is_covered=False
+                                                       ) and movement > 0:
+                            movement -= 1
+                            self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item, "ExpectedLevel"] -= 1
+                            level -= 1
+                    # A continuación: avisar al usuario de los temas encontrados:
+                    if movement > 0:
                     # Si ya disminuimos todo lo posible a cada tienda y aún se necesita quitar, entonces hay un problema de capacidades
-                    print("Capacidades subestimadas estimadas para satisfacer las necesidades. Disminuir capacidades en las tiendas")
-                    sys.exit()
+                        print("Capacidades subestimadas estimadas para satisfacer las necesidades. Disminuir capacidades en las tiendas")
+                        break
+                        # sys.exit()
+                    else:
+                        # De cualquier forma, llegar acá implica que se ignoró las cobertura y se avisará al usuario de ello
+                        print("Hay temas de cobertura que convendría que se examinen")
+                        break
             execution += 1
         if self.feasibility_test():
             print("Niveles ajustados adecuadamente")
@@ -115,13 +146,13 @@ class Phase1:
             self.store_profile.apply(lambda x: max(x["ExpectedLevel"] + self.range_lower_limite,
                                                    self.maximum_movement_to_remove), axis=1)
         self.store_profile["MaximumLevel"] = \
-            self.store_profile.apply(lambda x: max(x["ExpectedLevel"] + self.range_upper_limite,
+            self.store_profile.apply(lambda x: min(x["ExpectedLevel"] + self.range_upper_limite,
                                                    self.maximum_movement_to_add), axis=1)
 
     def load_information_by_store(self):
         # Variables útiles
         special_stores = self.df_store.loc[(self.df_store["Canal"] == "TIENDAS PROPIAS") &
-                                           (self.df_store["Zona"] == "AEROPUERTO"), "CodAlmacen"].tolist()
+                                           (self.df_store["Zona"] == "Aeropuerto"), "CodAlmacen"].tolist()
         store_columns = ["CodAlmacen", "NombreAlmacen", "Capacidad", "Stock"]
         df_store_facts = \
             self.df_facts[["CodAlmacen", "CurrentInventory", "AvgMonthlySalesLastQuarter",
@@ -133,6 +164,7 @@ class Phase1:
         self.store_profile = self.df_store[store_columns].merge(df_store_facts, on=["CodAlmacen"])
         # Indicadores
         self.store_profile["Available"] = self.store_profile["Capacidad"] - self.store_profile["Stock"]
+        # self.store_profile["AvgMonthlySalesLastQuarter"] = self.store_profile["QuarterlyPieceSales"]/3
         self.store_profile["Coverage"] = self.store_profile["CurrentInventory"]/self.store_profile["AvgMonthlySalesLastQuarter"]
         # Clasificaciones
         self.store_profile["Special"] = False
@@ -205,7 +237,7 @@ class Phase1:
 
     def adding_level_test(self, level, capacity, available, average_sale, movement=1, is_covered=True):
         # Aquí se revisa si se puede agregar más prendas sin pasarse de los límites establecidos
-        total_stock = capacity + available
+        total_stock = capacity - available
         # ¿Se puede aumentar el nivel sin pasarse del límite de ropa para mover?
         if level >= self.maximum_movement_to_add:
             return False
@@ -218,20 +250,21 @@ class Phase1:
                 return False
         return True
 
-    def removing_level_test(self, level, capacity, available, average_sale, fashion_stock, movement=1, is_covered=True):
+
+    def removing_level_test(self, level, capacity, available, average_sale, fashion_stock, movement=-1, is_covered=True):
         # NOTA: no se están considerando tiendas especiales
-        total_stock = capacity + available
+        total_stock = capacity - available
         # ¿Se puede disminuir el nivel sin pasarse del límite de ropa para mover?
         if level <= self.maximum_movement_to_remove:
             return False
         # ¿Se puede disminuir el nivel sin dejar a la tienda vacía?
-        if total_stock + level <= capacity*self.minimum_capacity_percentage:
+        if total_stock + level + movement <= capacity*self.minimum_capacity_percentage:
             return False
         if is_covered:
             # ¿Se puede disminuir el nivel manteniendo una buena cobertura?
             if (total_stock + level + movement)/average_sale <= self.minimum_acceptable_coverage:
                 return False
         # ¿La tienda tiene suficiente ropa de las prendas elegidas para poder quitar?
-        if level + movement <= fashion_stock:
+        if level + fashion_stock <= 0:
             return False
         return True
