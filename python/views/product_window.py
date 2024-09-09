@@ -8,6 +8,14 @@ class ProductWindow(QWidget):
     def __init__(self, df_product) -> None:
         super().__init__()
         self.df_product = df_product
+
+        # Inicialización de atributos propios de la ventana (buenas prácticas)
+        self.search_box = None
+        self.search_button = None
+        self.table_view = None
+        self.continue_button = None
+        self.model = None
+
         self.setup_ui()
 
     def setup_ui(self):

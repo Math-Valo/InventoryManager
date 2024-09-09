@@ -57,7 +57,6 @@ class SettingsController(QObject):
         self.view.port_input.setText(credentials.get("port", ""))
         self.view.driver_input.setText(credentials.get("driver", ""))
 
-
     def apply_settings(self):
         credentials = self.get_credentials()
         self.database_connection.set_credentials(

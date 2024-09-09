@@ -9,6 +9,22 @@ class SettingsWindow(QWidget):
     def __init__(self, settings):
         super().__init__()
         self.settings = settings
+
+        # Inicialización de atributos propios de la ventana (buenas prácticas) (revisar...)
+        self.tabs = None
+        self.db_tab = None
+        self.apply_settings_buttom = None
+        self.close_buttom = None
+
+        self.server_input = None
+        self.db_input = None
+        self.user_input = None
+        self.pass_input = None
+        self.port_input = None
+        self.driver_input = None
+        self.save_checkbox = None
+        self.test_connection_button = None
+
         self.setup_ui()
 
     def setup_ui(self):
@@ -43,10 +59,9 @@ class SettingsWindow(QWidget):
         settings_buttoms_layout.addWidget(self.apply_settings_buttom)
         settings_buttoms_layout.addWidget(self.close_buttom)
 
-        # Acomodar todo en el layout principal
+        # Acomodar en el layout principal
         main_layout.addLayout(settings_buttoms_layout)
         self.setLayout(main_layout)
-
 
     def db_tab_ui(self):
         # Layout del formulario para las credenciales
@@ -54,10 +69,8 @@ class SettingsWindow(QWidget):
 
         # Elementos del formulario        
         self.server_input = QLineEdit()
-        # self.server_input.setText("108.175.14.162")
 
         self.db_input = QLineEdit()
-        # self.db_input.setText("DBABITOMSQL")
 
         self.user_input = QLineEdit()
         
@@ -65,10 +78,8 @@ class SettingsWindow(QWidget):
         self.pass_input.setEchoMode(QLineEdit.Password)
 
         self.port_input = QLineEdit()
-        # self.port_input.setText("3306")
 
         self.driver_input = QLineEdit()
-        # self.driver_input.setText("MySQL ODBC 8.4 ANSI Driver")
 
         layout_form.addRow(QLabel("Servidor"), self.server_input)
         layout_form.addRow(QLabel("Base de datos:"), self.db_input)

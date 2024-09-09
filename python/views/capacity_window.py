@@ -6,10 +6,16 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
+
 class CapacityWindow(QWidget):
-    def __init__(self, df_store):
+    def __init__(self, stores):
         super().__init__()
-        self.df_store = df_store
+        self.df_store = stores
+
+        # Inicialización de atributos propios de la ventana (buenas prácticas)
+        self.table = None
+        self.continue_button = None
+
         self.setup_ui()
 
     def setup_ui(self):
@@ -39,7 +45,7 @@ class CapacityWindow(QWidget):
         button_layout.addWidget(self.continue_button)
         layout.addLayout(button_layout)
 
-        # Agregar los datos a la tabla 
+        # Agregar los datos a la tabla
         self.populate_table()
 
     def populate_table(self):
@@ -60,12 +66,14 @@ class CapacityWindow(QWidget):
             self.set_stock_color(stock_item, item["Capacidad"], item["Stock"])
             self.table.setItem(row, 2, stock_item)
 
-    def set_stock_color(self, item, capacity, stock):
+    @staticmethod
+    def set_stock_color(item, capacity, stock) -> None:
         # Cambiar color de la etiqueta del stock a rojo si es mayor a la capacidad de la tienda
         if stock > capacity:
             item.setForeground(QColor('red'))
         else:
             item.setForeground(QColor('black'))
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

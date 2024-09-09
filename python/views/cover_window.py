@@ -13,6 +13,16 @@ class CoverWindow(QMainWindow):
         abito_logo = "logo_abito.jpg"
         cover_background = "background.png"
 
+        # Inicialización de atributos propios de la ventana (buenas prácticas)
+        self.centralwidget = None
+        self.image_dir = None
+        self.background_image_path = None
+        self. background_label = None
+        self.widgets_container = None
+        self.start_button = None
+        self.exit_button = None
+        self.settings_button = None
+
         self.setup_ui(title_app, millet_brands_logo, abito_logo, cover_background)
 
     def setup_ui(self, title_name, first_logo_name, second_logo_name, background_image_name):

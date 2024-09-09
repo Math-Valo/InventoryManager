@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import math
-import sys
 
 
 class Phase1:
@@ -35,7 +34,6 @@ class Phase1:
                                                                             x["CoverageClassification"],
                                                                             x["AvgMonthlySalesLastQuarter"],
                                                                             x["Capacidad"]), axis=1)
-        # print(self.store_profile)
         execution = 0
         total_stores = self.store_profile.shape[0]
         while execution <= self.max_executions and not self.feasibility_test():
@@ -43,7 +41,7 @@ class Phase1:
             if movement < 0:  # Estamos quitando de más
                 # Se aumentará a las tiendas que más venden
                 for item in range(total_stores):
-                    # Esto funciona porque es prácticamente imposible tener exactamente la misma cantidad de ventas en 2 tiendas
+                    # Esto funciona porque es casi imposible tener exactamente la misma cantidad de ventas en 2 tiendas
                     level = self.store_profile.loc[self.store_profile["SortingSales"] == item+1,
                                                    "ExpectedLevel"].iloc[0]
                     capacity = self.store_profile.loc[self.store_profile["SortingSales"] == item+1,
@@ -57,8 +55,8 @@ class Phase1:
                         movement += 1
                         self.store_profile.loc[self.store_profile["SortingSales"] == item+1, "ExpectedLevel"] += 1
                         level += 1
-                if movement < 0:  # Es posible que aún repasando todas las tiendas aún no se cumplan los requisitos
-                    # El mayor problema por el cual pasa esto es por respetar los límites de la cobertura. Vamos a ignorarlo.
+                if movement < 0:  # Es posible que aun repasando todas las tiendas aún no se cumplan los requisitos
+                    # Esto puede pasar por respetar los límites de la cobertura. Vamos a ignorarlo.
                     for item in range(total_stores):
                         level = self.store_profile.loc[self.store_profile["SortingSales"] == item+1,
                                                        "ExpectedLevel"].iloc[0]
@@ -68,24 +66,27 @@ class Phase1:
                                                            "Available"].iloc[0]
                         average_sale = self.store_profile.loc[self.store_profile["SortingSales"] == item+1,
                                                               "AvgMonthlySalesLastQuarter"].iloc[0]
-                        while self.adding_level_test(level, capacity, available, average_sale, is_covered=False) and movement < 0:
+                        while self.adding_level_test(level, capacity, available, average_sale, is_covered=False
+                                                     ) and movement < 0:
                             movement += 1
                             self.store_profile.loc[self.store_profile["SortingSales"] == item+1, "ExpectedLevel"] += 1
                             level += 1
                     # A continuación: avisar al usuario de los temas encontrados:
                     if movement < 0:
-                        # Si ya aumentamos tood lo posible a cada tienda y aún se necesita aumentar, seguro es un tema de capacidades
-                        print("Capacidades insuficientes para satisfacer las necesidades. Aumentar capacidades en las tiendas")
+                        # Si aún se necesita aumentar, seguro es un tema de capacidades
+                        print("Capacidades insuficientes para satisfacer las necesidades.")
+                        print("Aumentar capacidades en las tiendas")
                         break
                         # sys.exit()
                     else:
-                        # De cualquier forma, llegar acá implica que se ignoró las cobertura y se avisará al usuario de ello
+                        # Anyway, llegar acá implica que se ignoró las cobertura y se avisará al usuario de ello
                         print("Hay temas de cobertura que convendría que se examinen")
                         break
             else:  # Estamos agregando prendas de más
                 # Se disminuirá a las tiendas que menos venden
                 for item in range(total_stores):
-                    if self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item, "Special"].iloc[0]:
+                    if self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                              "Special"].iloc[0]:
                         continue
                     level = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
                                                    "ExpectedLevel"].iloc[0]
@@ -103,10 +104,11 @@ class Phase1:
                         self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
                                                "ExpectedLevel"] -= 1
                         level -= 1
-                if movement > 0:  # Es posible que aún repasando todas las tiendas aún no se cumplan los requisitos
-                    # El mayor problema por el cual pasa esto es por respetar los límites de la cobertura. Vamos a ignorarlo.
+                if movement > 0:  # Es posible que aun repasando todas las tiendas aún no se cumplan los requisitos
+                    # El problema por el cual pasa esto es por respetar los límites de la cobertura. Vamos a ignorarlo.
                     for item in range(total_stores):
-                        if self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item, "Special"].iloc[0]:
+                        if self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                                  "Special"].iloc[0]:
                             continue
                         level = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
                                                        "ExpectedLevel"].iloc[0]
@@ -118,15 +120,17 @@ class Phase1:
                                                               "AvgMonthlySalesLastQuarter"].iloc[0]
                         fashion_stock = self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
                                                            "CurrentInventory"].iloc[0]
-                        while self.removing_level_test(level, capacity, available, average_sale, fashion_stock, is_covered=False
-                                                       ) and movement > 0:
+                        while self.removing_level_test(level, capacity, available, average_sale, fashion_stock,
+                                                       is_covered=False) and movement > 0:
                             movement -= 1
-                            self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item, "ExpectedLevel"] -= 1
+                            self.store_profile.loc[self.store_profile["SortingSales"] == total_stores - item,
+                                                   "ExpectedLevel"] -= 1
                             level -= 1
                     # A continuación: avisar al usuario de los temas encontrados:
                     if movement > 0:
-                    # Si ya disminuimos todo lo posible a cada tienda y aún se necesita quitar, entonces hay un problema de capacidades
-                        print("Capacidades subestimadas estimadas para satisfacer las necesidades. Disminuir capacidades en las tiendas")
+                        # Si ya disminuimos y aún se necesita quitar, entonces hay un problema de capacidades
+                        print("Capacidades subestimadas estimadas para satisfacer las necesidades.")
+                        print("Disminuir capacidades en las tiendas")
                         break
                         # sys.exit()
                     else:
@@ -138,21 +142,12 @@ class Phase1:
             print("Niveles ajustados adecuadamente")
         else:
             print("No se pudieron ajustar adecuadamente los niveles. Favor de revisar los parámetros")
-            # sys.exit()
 
-        # Con los niveles esperados, queda calcular los rangos inferiores y superiores
-        # De momento no hay un criterio mayor para los límites inferior y superior
-        self.store_profile["MinimumLevel"] = \
-            self.store_profile.apply(lambda x: max(x["ExpectedLevel"] + self.range_lower_limite,
-                                                   self.maximum_movement_to_remove), axis=1)
-        self.store_profile["MaximumLevel"] = \
-            self.store_profile.apply(lambda x: min(x["ExpectedLevel"] + self.range_upper_limite,
-                                                   self.maximum_movement_to_add), axis=1)
+        self.calculate_range()
 
     def load_information_by_store(self):
         # Variables útiles
-        special_stores = self.df_store.loc[(self.df_store["Canal"] == "TIENDAS PROPIAS") &
-                                           (self.df_store["Zona"] == "Aeropuerto"), "CodAlmacen"].tolist()
+        special_stores = self.df_store.loc[self.df_store["Zona"] == "Aeropuerto", "CodAlmacen"].tolist()
         store_columns = ["CodAlmacen", "NombreAlmacen", "Capacidad", "Stock"]
         df_store_facts = \
             self.df_facts[["CodAlmacen", "CurrentInventory", "AvgMonthlySalesLastQuarter",
@@ -161,11 +156,13 @@ class Phase1:
                                                                         "AvgMonthlySalesLastQuarter": "sum",
                                                                         "AnnualSales": "sum"})
         # Inicializar DataFrame
-        self.store_profile = self.df_store[store_columns].merge(df_store_facts, on=["CodAlmacen"])
+        self.store_profile = self.df_store[self.df_store["Canal"]=="TIENDAS PROPIAS"
+                                           ][store_columns].merge(df_store_facts, on=["CodAlmacen"])
         # Indicadores
         self.store_profile["Available"] = self.store_profile["Capacidad"] - self.store_profile["Stock"]
         # self.store_profile["AvgMonthlySalesLastQuarter"] = self.store_profile["QuarterlyPieceSales"]/3
-        self.store_profile["Coverage"] = self.store_profile["CurrentInventory"]/self.store_profile["AvgMonthlySalesLastQuarter"]
+        self.store_profile["Coverage"] = \
+            self.store_profile["CurrentInventory"]/self.store_profile["AvgMonthlySalesLastQuarter"]
         # Clasificaciones
         self.store_profile["Special"] = False
         self.store_profile.loc[self.store_profile["CodAlmacen"].isin(special_stores), "Special"] = True
@@ -268,3 +265,13 @@ class Phase1:
         if level + fashion_stock <= 0:
             return False
         return True
+
+    def calculate_range(self):
+        # Con los niveles esperados, queda calcular los rangos inferiores y superiores
+        # De momento no hay un criterio mayor para los límites inferior y superior
+        self.store_profile["MinimumLevel"] = \
+            self.store_profile.apply(lambda x: max(x["ExpectedLevel"] + self.range_lower_limite,
+                                                   self.maximum_movement_to_remove), axis=1)
+        self.store_profile["MaximumLevel"] = \
+            self.store_profile.apply(lambda x: min(x["ExpectedLevel"] + self.range_upper_limite,
+                                                   self.maximum_movement_to_add), axis=1)

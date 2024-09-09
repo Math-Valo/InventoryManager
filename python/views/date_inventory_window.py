@@ -6,6 +6,12 @@ class DateInventoryWindow(QWidget):
     def __init__(self, last_date_in_inventory) -> None:
         super().__init__()
         self.inventory_date = last_date_in_inventory
+
+        # Inicialización de atributos propios de la ventana (buenas prácticas)
+        self.date_edit = None
+        self.reset_date_button = None
+        self.continue_button = None
+
         self.setup_ui()
 
     def setup_ui(self):
@@ -21,8 +27,8 @@ class DateInventoryWindow(QWidget):
         self.date_edit = QDateEdit(self)
         self.date_edit.setCalendarPopup(True)
         self.date_edit.setDate(QDate(self.inventory_date.year,
-                                self.inventory_date.month,
-                                self.inventory_date.day))
+                                     self.inventory_date.month,
+                                     self.inventory_date.day))
         layout.addWidget(self.date_edit)
 
         # Layout para las opciones de la ventana
@@ -40,7 +46,6 @@ class DateInventoryWindow(QWidget):
         layout.addLayout(layout_options)
 
         self.setLayout(layout)
-
 
     def set_date(self, date) -> None:
         if date is not None:

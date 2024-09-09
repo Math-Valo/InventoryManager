@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton,
-                             QScrollArea, QCheckBox, QTableView, QHeaderView, QSplitter)
+from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QPushButton, QScrollArea,
+                             QCheckBox, QTableView, QHeaderView, QSplitter)
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt
+
 
 class StoreWindow(QWidget):
     def __init__(self, df_store) -> None:
@@ -10,6 +11,10 @@ class StoreWindow(QWidget):
 
         self.regions = dict()
         self.stores = dict()
+
+        # Inicialización de atributos propios de la ventana (buenas prácticas)
+        self.continue_button = None
+        self.selected_stores_model = None
 
         self.setup_ui()
 
@@ -85,8 +90,8 @@ class StoreWindow(QWidget):
         selected_widget.setLayout(selected_section_layout)
         splitter.addWidget(selected_widget)
 
-        splitter.setStretchFactor(0,1)
-        splitter.setStretchFactor(1,3)
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 3)
 
         layout.addWidget(splitter)
         layout.addWidget(self.continue_button)

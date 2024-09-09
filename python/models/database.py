@@ -2,6 +2,7 @@ from .connection_manager import ConnectionManager
 from .query_manager import QueryManager
 import pandas as pd
 
+
 # Integración de las clases referente a la obtención de datos de la base de datos
 # para proporcionar una interfaz centralizada.
 class Database:

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 import math
 
+
 class LevelsWindow(QWidget):
     def __init__(self, df_store_profile, results_phase_1) -> None:
         super().__init__()
@@ -12,6 +13,12 @@ class LevelsWindow(QWidget):
         self.maximum_capacity_percentage = results_phase_1.maximum_capacity_percentage
         self.minimum_acceptable_coverage = results_phase_1.minimum_acceptable_coverage
         self.maximum_acceptable_coverage = results_phase_1.maximum_acceptable_coverage
+
+        # Inicialización de atributos propios de la ventana (buenas prácticas)
+        self.table = None
+        self.sum_expected_level = None
+        self.continue_button = None
+
         self.setup_ui()
 
     def setup_ui(self):
@@ -43,7 +50,7 @@ class LevelsWindow(QWidget):
         layout_total_level.addWidget(self.sum_expected_level, alignment=Qt.AlignCenter)
         layout.addLayout(layout_total_level)
 
-       # Agregar botón "Siguiente >>>"
+        # Agregar botón "Siguiente >>>"
         button_layout = QHBoxLayout()
         button_layout.addStretch()
         self.continue_button = QPushButton("Siguiente >>>")
@@ -98,19 +105,25 @@ class LevelsWindow(QWidget):
                 new_coverage = -1
             coverage_item = QTableWidgetItem(str(new_coverage))
             coverage_item.setFlags(Qt.ItemIsEnabled)  # No editable
-            self.set_coverage_color(coverage_item, item["CurrentInventory"], item["AvgMonthlySalesLastQuarter"], item["ExpectedLevel"])
+            self.set_coverage_color(coverage_item,
+                                    item["CurrentInventory"],
+                                    item["AvgMonthlySalesLastQuarter"],
+                                    item["ExpectedLevel"])
             self.table.setItem(row, 7, coverage_item)
 
     def set_stock_color(self, item, capacity, stock, level):
         # Cambiar color de la etiqueta del stock a rojo si es mayor a la capacidad de la tienda
-        if stock + level < capacity*self.minimum_capacity_percentage or stock + level > capacity*self.maximum_capacity_percentage:
+        discriminant1 = stock + level < capacity*self.minimum_capacity_percentage
+        discriminant2 = stock + level > capacity*self.maximum_capacity_percentage
+        if discriminant1 or discriminant2:
             item.setForeground(QColor('red'))
         elif stock + level > capacity:
             item.setForeground(QColor('orange'))
         else:
             item.setForeground(QColor('black'))
 
-    def set_fashion_stock_color(self, item, fashion_stock, level):
+    @staticmethod
+    def set_fashion_stock_color(item, fashion_stock, level):
         # Cambiar color de la etiqueta del inventario de modas a rojo si es menor a 0
         if fashion_stock + level < 0:
             item.setForeground(QColor('red'))
@@ -132,6 +145,7 @@ class LevelsWindow(QWidget):
             self.sum_expected_level.setStyleSheet("color: red")
         else:
             self.sum_expected_level.setStyleSheet("color: black")
+
 
 if __name__ == "__main__":
     import pandas as pd
@@ -162,6 +176,6 @@ if __name__ == "__main__":
 
     app = QApplication([])
     resultados = Test()
-    view = LevelsWindow(resultados)
-    view.show()
+    # view = LevelsWindow(resultados)
+    # view.show()
     exit(app.exec_())

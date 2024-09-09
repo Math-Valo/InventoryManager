@@ -2,8 +2,11 @@ import json
 import os
 
 
-class ConfigManager():
-    def __init__(self, config_file="config/config.json"):
+class ConfigManager:
+    def __init__(self, config_file="config\\config.json"):
+        # config_dir = os.path.join(os.path.dirname(__file__), "..\\..", "config")
+        # self.config_file = os.path.join(config_dir, config_file).replace("\\", "/")
+        # self.config_file = "..\\..\\"+config_file
         self.config_file = config_file
         self.settings = dict()
         self.credentials = None
@@ -32,6 +35,7 @@ class ConfigManager():
         os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
         with open(self.config_file, 'w') as file:
             json.dump(settings, file, indent=1)
+
 
 if __name__ == "__main__":
     configurar = ConfigManager()

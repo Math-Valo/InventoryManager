@@ -7,5 +7,6 @@ def main():
     navigation_controller = NavigationController(settings)
     navigation_controller.run()
 
+
 if __name__ == "__main__":
     main()
