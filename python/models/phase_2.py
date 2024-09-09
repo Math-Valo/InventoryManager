@@ -469,3 +469,13 @@ class Phase2:
         final_stores_that_require_more = [store for store in stores_that_require_more if store not in blocked]
         final_stores_that_require_less = [store for store in stores_that_require_less if store not in blocked]
         return [final_stores_that_require_more, final_stores_that_require_less]
+
+    def clean(self):
+        stores = self.store_profile["CodAlmacen"].tolist()
+        zero_inventory_sku_list = self.initial_pivot[self.initial_pivot[stores].sum(axis=1) == 0]["SKU"].tolist()
+        self.initial_pivot =\
+            self.initial_pivot[~self.initial_pivot["SKU"].isin(zero_inventory_sku_list)].reset_index(drop=True)
+        self.level_pivot =\
+            self.level_pivot[~self.level_pivot["SKU"].isin(zero_inventory_sku_list)].reset_index(drop=True)
+        self.sales_pivot =\
+            self.sales_pivot[~self.sales_pivot["SKU"].isin(zero_inventory_sku_list)].reset_index(drop=True)

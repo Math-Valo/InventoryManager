@@ -9,7 +9,7 @@ class LevelsController:
         self.app_state = app_state
         self.connection = database_connection
 
-        print("Fase_1: Determinación de los niveles por tiendas")
+        print("Fase 1: Determinación de los niveles por tiendas")
         self.df_facts = self.app_state.get_facts()
         store_product_tuples = self.df_facts[["CodAlmacen", "SKU"]].apply(tuple, axis=1).tolist()
         self.connection.update_query_store_product(store_product_tuples)

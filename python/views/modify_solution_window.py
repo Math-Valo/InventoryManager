@@ -1,5 +1,6 @@
 import os
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QDialogButtonBox, QApplication, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QDialogButtonBox, QApplication, QPushButton, QFileDialog, \
+    QLineEdit
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
@@ -9,6 +10,8 @@ class ModifySolutionWindow(QWidget):
         super().__init__()
         self.button_box = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
         self.button_select_path = QPushButton()
+        self.path_display = QLabel()
+        self.selected_directory = QFileDialog
         self.setup_ui()
 
     def setup_ui(self):
@@ -36,8 +39,8 @@ class ModifySolutionWindow(QWidget):
 
         # Etiqueta informativa para la ubicación del archivo
         file_dir = os.path.join(os.path.dirname(__file__), "..\\..", "files")
-        path_display = QLabel(file_dir + "\\Nivelacion_modificable.xlsx")
-        layout.addWidget(path_display)
+        self.path_display.setText(file_dir + "\\Nivelacion_modificable.xlsx")
+        layout.addWidget(self.path_display)
 
         # Botón para seleccionar la ubicación de guardado
         self.button_select_path.setText("Cambiar ubicación de guardado")

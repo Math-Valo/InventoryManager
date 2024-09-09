@@ -5,6 +5,7 @@ from controllers.store_controller import StoreController
 from controllers.capacity_controller import CapacityController
 from controllers.product_controller import ProductController
 from controllers.levels_controller import LevelsController
+from controllers.modify_solution_controller import ModifySolutionController
 from models.app_state import AppState
 
 
@@ -20,7 +21,9 @@ class NavigationController:
         self.product_controller = None
         self.product_controller = None
         self.levels_controller = None
+        self.modify_solution_controller = None
         self.levels = None
+        self.solution = None
         self.app_state = None
 
     def start_application(self, database_connection):
@@ -63,11 +66,18 @@ class NavigationController:
         self.app_state = app_state
         self.database_connection = connection
         self.levels = levels
-        # self.app_state.get_facts().to_csv("facts.csv")
-        # self.app_state.get_store_dimensions().to_csv("stores.csv")
-        # self.levels.store_profile.to_csv("store_profile.csv")
-        from models.phase_2 import Phase2
-        Phase2(self.app_state.df_facts, self.app_state.product_dimensions, self.levels.store_profile)
+        self.modify_solution_controller = ModifySolutionController(self, self.settings, self.app_state, self.levels)
+
+    def update_solution(self, app_state, solution):
+        self.app_state = app_state
+        self.solution = solution
+
+        self.exit_application()
+
+    def phase_3(self, app_state, solution):
+        self.app_state = app_state
+        self.solution = solution
+
         self.exit_application()
 
     def exit_application(self):
