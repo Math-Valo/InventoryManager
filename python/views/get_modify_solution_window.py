@@ -38,7 +38,7 @@ class GetModifySolutionWindow(QWidget):
 
         # Etiqueta informativa para la ubicación del archivo
         file_dir = os.path.join(os.path.dirname(__file__), "..\\..", "files")
-        self.path_display.setText(file_dir + "\\Nivelacion_modificable.xlsx")
+        self.path_display.setText(file_dir + "\\inventario_final_modificado.csv")
         layout.addWidget(self.path_display)
 
         # Botón para seleccionar la ubicación de guardado

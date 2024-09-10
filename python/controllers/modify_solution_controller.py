@@ -32,7 +32,7 @@ class ModifySolutionController:
     def select_save_location(self):
         # Abrir cuadro de diálogo para seleccionar un directorio
         new_selected_directory =\
-            self.view.selected_directory.getExistingDirectory(self.view, 'Seleccione la ubicación de guardado')
+            self.view.selected_directory.getExistingDirectory(self.view, "Seleccione la ubicación de guardado")
         if new_selected_directory:
             # Actualizar la etiqueta de la ruta seleccionada
             self.selected_directory = new_selected_directory.replace("/", "\\") + "\\Nivelacion_modificable.xlsx"
@@ -72,9 +72,9 @@ class ModifySolutionController:
 
     def continue_to_next_window(self):
         if self.flag_save:
-            self.navigation_controller.update_solution(self.app_state, self.solution)
+            self.navigation_controller.update_solution(self.solution)
         else:
-            self.navigation_controller.phase_3(self.app_state, self.solution)
+            self.navigation_controller.phase_3(self.solution)
 
     def show(self):
         self.view.show()

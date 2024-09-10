@@ -6,6 +6,7 @@ from controllers.capacity_controller import CapacityController
 from controllers.product_controller import ProductController
 from controllers.levels_controller import LevelsController
 from controllers.modify_solution_controller import ModifySolutionController
+from controllers.get_modify_solution_controller import GetModifySolutionController
 from models.app_state import AppState
 
 
@@ -22,6 +23,7 @@ class NavigationController:
         self.product_controller = None
         self.levels_controller = None
         self.modify_solution_controller = None
+        self.getmodify_solution_controller = None
         self.levels = None
         self.solution = None
         self.app_state = None
@@ -68,14 +70,11 @@ class NavigationController:
         self.levels = levels
         self.modify_solution_controller = ModifySolutionController(self, self.settings, self.app_state, self.levels)
 
-    def update_solution(self, app_state, solution):
-        self.app_state = app_state
+    def update_solution(self, solution):
         self.solution = solution
+        self.getmodify_solution_controller = GetModifySolutionController(self, self.settings, self.solution)
 
-        self.exit_application()
-
-    def phase_3(self, app_state, solution):
-        self.app_state = app_state
+    def phase_3(self, solution):
         self.solution = solution
 
         self.exit_application()
