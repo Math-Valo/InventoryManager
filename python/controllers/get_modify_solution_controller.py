@@ -19,7 +19,7 @@ class GetModifySolutionController:
     def setup_connections(self):
         self.view.button_select_path.clicked.connect(self.select_load_location)
         self.view.button_box.accepted.connect(self.load_solution)
-        self.view.button_box.rejected.connect(self.close)
+        self.view.button_box.rejected.connect(self.continue_to_next_window)
 
     def select_load_location(self):
         # Abrir cuadro de diálogo para seleccionar un directorio
@@ -55,7 +55,7 @@ class GetModifySolutionController:
             if self.flag_load:
                 break
 
-        self.close()
+        self.continue_to_next_window()
 
     def show(self):
         self.view.show()
@@ -65,8 +65,8 @@ class GetModifySolutionController:
             print("Modificación realizada en los niveles finales")
         else:
             print("Se continúa sin modificación en los niveles finales")
+        self.close()
         self.navigation_controller.phase_3(self.solution)
 
     def close(self):
-        self.continue_to_next_window()
         self.view.close()

@@ -38,7 +38,7 @@ class DownloadShipmentsWindow(QWidget):
 
         # Etiqueta informativa para la ubicación del archivo
         file_dir = os.path.join(os.path.dirname(__file__), "..\\..", "files")
-        self.path_display.setText(file_dir + "\\inventario_final_modificado.csv")
+        self.path_display.setText(file_dir + "\\Nivelacion_envios.xlsx")
         layout.addWidget(self.path_display)
 
         # Botón para seleccionar la ubicación de guardado

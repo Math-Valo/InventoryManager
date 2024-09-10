@@ -7,6 +7,7 @@ from controllers.product_controller import ProductController
 from controllers.levels_controller import LevelsController
 from controllers.modify_solution_controller import ModifySolutionController
 from controllers.get_modify_solution_controller import GetModifySolutionController
+from controllers.download_shipments_controller import DownloadShipmentsController
 from models.app_state import AppState
 
 
@@ -24,6 +25,7 @@ class NavigationController:
         self.levels_controller = None
         self.modify_solution_controller = None
         self.getmodify_solution_controller = None
+        self.down_load_shipments_controller = None
         self.levels = None
         self.solution = None
         self.app_state = None
@@ -76,8 +78,8 @@ class NavigationController:
 
     def phase_3(self, solution):
         self.solution = solution
-
-        self.exit_application()
+        self.down_load_shipments_controller =\
+            DownloadShipmentsController(self, self.settings, self.app_state, self.solution)
 
     def exit_application(self):
         self.app.quit()

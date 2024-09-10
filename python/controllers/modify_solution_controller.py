@@ -27,7 +27,7 @@ class ModifySolutionController:
     def setup_connections(self):
         self.view.button_select_path.clicked.connect(self.select_save_location)
         self.view.button_box.accepted.connect(self.save_solution)
-        self.view.button_box.rejected.connect(self.close)
+        self.view.button_box.rejected.connect(self.continue_to_next_window)
 
     def select_save_location(self):
         # Abrir cuadro de diálogo para seleccionar un directorio
@@ -68,17 +68,18 @@ class ModifySolutionController:
         # Terminar
         writer.close()
         self.flag_save = True
-        self.close()
+        self.continue_to_next_window()
 
     def continue_to_next_window(self):
         if self.flag_save:
+            self.close()
             self.navigation_controller.update_solution(self.solution)
         else:
+            self.close()
             self.navigation_controller.phase_3(self.solution)
 
     def show(self):
         self.view.show()
 
     def close(self):
-        self.continue_to_next_window()
         self.view.close()
