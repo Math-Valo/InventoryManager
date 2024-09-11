@@ -5,9 +5,10 @@ from PyQt5.QtCore import Qt, QSize, QSortFilterProxyModel
 
 
 class ProductWindow(QWidget):
-    def __init__(self, df_product) -> None:
+    def __init__(self, df_product, headers=None) -> None:
         super().__init__()
         self.df_product = df_product
+        self.headers = headers
 
         # Inicialización de atributos propios de la ventana (buenas prácticas)
         self.search_box = None
@@ -20,7 +21,7 @@ class ProductWindow(QWidget):
 
     def setup_ui(self):
         self.setWindowTitle("Productos por nivelar")
-        self.resize(1000, 600)
+        self.resize(1300, 600)
 
         # Layout principal
         main_layout = QVBoxLayout()
@@ -30,7 +31,7 @@ class ProductWindow(QWidget):
         search_layout = QHBoxLayout()
         search_label = QLabel("Consulta:")
         self.search_box = QLineEdit()
-        query_ejemplo = "\"(Agrupador == 'P-V 24' | Agrupador == 'P-V 24') & Costo > 200\""
+        query_ejemplo = "\"(Agrupador == 'P-V 24' | Agrupador == 'O-I 24') & Costo > 200\""
         self.search_box.setPlaceholderText("Ingrese query (ejemplo: " + query_ejemplo + ")")
         self.search_button = QPushButton("Buscar")
         search_layout.addWidget(search_label)
@@ -63,8 +64,8 @@ class ProductWindow(QWidget):
         self.setLayout(main_layout)
 
     def update_selected_products(self, df_product):
-        self.model.setHorizontalHeaderLabels(df_product.columns)
-        for row in df_product.itertuples(index=False):
+        self.model.setHorizontalHeaderLabels(df_product[self.headers].columns)
+        for row in df_product[self.headers].itertuples(index=False):
             items = [QStandardItem(str(item)) for item in row]
             self.model.appendRow(items)
 
