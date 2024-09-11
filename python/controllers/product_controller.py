@@ -10,7 +10,11 @@ class ProductController:
 
         self.df_product = self.app_state.get_product_dimensions()
         self.df_product_filtered = self.df_product
-        self.view = ProductWindow(self.df_product)
+
+        headers = ["SKU", "Temporada", "Coleccion", "Genero", "SubGrupo", "Familia",
+                   "Modelo", "EstiloVida", "Color", "Tela", "Costo"]
+
+        self.view = ProductWindow(self.df_product, headers)
         self.setup_connections()
         self.show()
 
@@ -19,8 +23,6 @@ class ProductController:
         self.view.continue_button.clicked.connect(self.continue_to_next_window)
 
     def update_selected_products(self):
-        # headers = ["SKU", "Temporada", "Coleccion", "Genero", "SubGrupo", "Familia",
-        #            "Modelo", "EstiloVida", "Color", "Tela", "Costo"]
         query_text = self.view.search_box.text()
         try:
             self.df_product_filtered = self.df_product.query(query_text)
