@@ -38,10 +38,24 @@ class Phase2:
         self.upgrade_store_profile(first_time=True)
         # Mover productos por agrupador para ajustar a los niveles de la fase 1.
         blocked_stores = self.store_profile[self.store_profile["ToBeModified"] == 0]["CodAlmacen"].tolist()
-        for item in reversed(range(total_blocks)):
-            [initial_block, level_block, sales_block] = self.setup_block(item)
-            blocked_stores = self.leveling_stores(initial_block, level_block, sales_block, blocked_stores)
-            # self.level_pivot.loc[level_block.index, level_block.columns] = level_block.copy()
+        MAX_ITER = math.ceil(len(self.store_profile["CodAlmacen"].tolist())/2)
+        is_finished = False
+        for i in range(MAX_ITER):
+            for item in reversed(range(total_blocks)):
+                [initial_block, level_block, sales_block] = self.setup_block(item)
+                blocked_stores = self.leveling_stores(initial_block, level_block, sales_block, blocked_stores)
+            if self.store_profile["ToBeModified"].max() < 50:
+                is_finished = True
+                break
+        if is_finished:
+            return None
+        for i in range(MAX_ITER):
+            for item in reversed(range(total_blocks)):
+                [initial_block, level_block, sales_block] = self.setup_block(item)
+                blocked_stores = self.leveling_stores(initial_block, level_block, sales_block, blocked_stores,
+                                                      activate_stores=True)
+            if self.store_profile["ToBeModified"].max() < 50:
+                break
 
     def setup_dataframes(self):
         # Agregar la columna agrupador en una copia de los datos
@@ -401,15 +415,19 @@ class Phase2:
         df_with_leveled_inventory = pd.DataFrame({"CodAlmacen": stores,
                                                   "LeveledInventory": (self.level_pivot[stores].sum()).tolist()})
         self.store_profile = self.store_profile.merge(df_with_leveled_inventory, on="CodAlmacen")
-        self.store_profile["FinalLevel"] = (self.store_profile["CurrentInventory"] -
-                                            self.store_profile["LeveledInventory"])
-        self.store_profile["ToBeModified"] = self.store_profile["FinalLevel"] - self.store_profile["ExpectedLevel"]
+        self.store_profile["FinalLevel"] = (self.store_profile["LeveledInventory"] -
+                                            self.store_profile["CurrentInventory"])
+        self.store_profile["ToBeModified"] = self.store_profile["ExpectedLevel"] - self.store_profile["FinalLevel"]
 
-    def leveling_stores(self, initial, level, sales, blocked, fill_empty_stores=True):
+    def leveling_stores(self, initial, level, sales, blocked, fill_empty_stores=True, activate_stores=False):
         [require_more, require_less] = self.update_leveling_requirements(blocked)
         stores = require_more + require_less
-        # Se requiere conocer las tiendas que alguna vez han tenido producto
-        historic_stores = [store for store in stores if initial[store].sum() > 0 or sales[store].sum()]
+        if activate_stores:
+            # Si se van a activar tiendas nuevas, entonces todas las tiendas son válidas para mover producto.
+            historic_stores = stores
+        else:
+            # Si no, se requiere conocer las tiendas que alguna vez han tenido producto
+            historic_stores = [store for store in stores if initial[store].sum() > 0 or sales[store].sum()]
         # Los movimientos se priorizarán para que afecte lo menos posible al costo potencial.
         # Es decir, se moverá en orden de los agrupadores de menor costo de inventario a los de mayor costo.
         transmitting_stores = [store for store in require_less if level[store].sum() > 0]
