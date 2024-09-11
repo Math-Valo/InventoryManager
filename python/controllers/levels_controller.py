@@ -53,7 +53,7 @@ class LevelsController:
         # Actualización de colores
         self.view.set_stock_color(stock_item, capacity, stock, level)
         self.view.set_fashion_stock_color(fashion_stock_item, fashion_stock, level)
-        self.view.set_coverage_color(coverage_item, stock, average_sales, level)
+        self.view.set_coverage_color(coverage_item, fashion_stock, average_sales, level)
         # Actualización de la cantidad fuera de la tienda
         total_levels = 0
         for row in range(self.view.table.rowCount()):
