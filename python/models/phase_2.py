@@ -42,9 +42,6 @@ class Phase2:
             [initial_block, level_block, sales_block] = self.setup_block(item)
             blocked_stores = self.leveling_stores(initial_block, level_block, sales_block, blocked_stores)
             # self.level_pivot.loc[level_block.index, level_block.columns] = level_block.copy()
-        self.initial_pivot.to_csv("initial.csv")
-        self.level_pivot.to_csv("levels.csv")
-        self.sales_pivot.to_csv("sales.csv")
 
     def setup_dataframes(self):
         # Agregar la columna agrupador en una copia de los datos

@@ -1,14 +1,16 @@
+import os
 from views.download_shipments_window import DownloadShipmentsWindow
 from models.phase_3 import Phase3
 import pandas as pd
 
 
 class DownloadShipmentsController:
-    def __init__(self, navigation_controller, settings, app_state, solution):
+    def __init__(self, navigation_controller, settings, app_state, solution, file="Nivelacion_envios.xlsx"):
         self.navigation_controller = navigation_controller
         self.settings = settings
         self.app_state = app_state
         self.solution = solution
+        self.file_name = file
 
         # Bandera de finalización
         self.flag_save = False
@@ -18,8 +20,7 @@ class DownloadShipmentsController:
                                 self.app_state.get_store_dimensions())
         print("Envíos determinados")
         print("El proceso de nivelación ha finalizado.")
-        self.view = DownloadShipmentsWindow()
-        self.selected_directory = self.view.path_display.text()
+        self.view = DownloadShipmentsWindow(self.file_name)
         self.setup_connections()
         self.show()
 
@@ -34,8 +35,8 @@ class DownloadShipmentsController:
             self.view.selected_directory.getExistingDirectory(self.view, "Seleccione la ubicación de guardado")
         if new_selected_directory:
             # Actualizar la etiqueta de la ruta seleccionada
-            self.selected_directory = new_selected_directory.replace("/", "\\") + "\\Nivelacion_envios.xlsx"
-            self.view.path_display.setText(self.selected_directory)
+            self.view.selected_file = os.path.join(new_selected_directory, self.file_name)
+            self.view.path_display.setText(self.view.selected_file)
 
     def save_solution(self):
         # Obtener el DataFrames de donde saldrán los datos
@@ -49,7 +50,7 @@ class DownloadShipmentsController:
                                     right_on=["CodAlmacen"])
 
         # Crear un writer para poder escribir un archivo con diferentes hojas
-        writer = pd.ExcelWriter(self.selected_directory, engine='xlsxwriter')
+        writer = pd.ExcelWriter(self.view.selected_file, engine='xlsxwriter')
 
         # Crear y guardar las tablas para cada tienda que envía productos
         try:

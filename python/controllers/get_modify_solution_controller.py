@@ -1,18 +1,19 @@
+import os
 from views.get_modify_solution_window import GetModifySolutionWindow
 import pandas as pd
 
 
 class GetModifySolutionController:
-    def __init__(self, navigation_controller, settings, solution):
+    def __init__(self, navigation_controller, settings, solution, file="inventario_final_modificado.csv"):
         self.navigation_controller = navigation_controller
         self.settings = settings
         self.solution = solution
+        self.file_name = file
 
         print("Esperando modificaciones")
         self.flag_load = False
 
-        self.view = GetModifySolutionWindow()
-        self.selected_directory = self.view.path_display.text()
+        self.view = GetModifySolutionWindow(self.file_name)
         self.setup_connections()
         self.show()
 
@@ -27,8 +28,8 @@ class GetModifySolutionController:
             self.view.selected_directory.getExistingDirectory(self.view, "Seleccione la ubicación del archivo")
         if new_selected_directory:
             # Actualizar la etiqueta de la ruta seleccionada
-            self.selected_directory = new_selected_directory.replace("/", "\\") + "\\inventario_final_modificado.csv"
-            self.view.path_display.setText(self.selected_directory)
+            self.view.selected_file = os.path.join(new_selected_directory, self.file_name)
+            self.view.path_display.setText(self.view.selected_file)
 
     def load_solution(self):
         storages = self.solution.level_pivot.columns.difference(["index", "Agrupador", "SKU"]).tolist()
@@ -36,7 +37,7 @@ class GetModifySolutionController:
         df_modified = level
 
         try:
-            df_from_csv = pd.read_csv(self.selected_directory, usecols=["SKU"]+storages)
+            df_from_csv = pd.read_csv(self.view.selected_file, usecols=["SKU"]+storages)
             df_modified = level[level.columns.difference(storages)].merge(df_from_csv, on=["SKU"])
         except Exception as e:
             print(f"ERROR. {type(e)}: {e}. ¿Seguro que se encuentra el CSV en la ubicación dada?")

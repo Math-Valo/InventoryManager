@@ -1,4 +1,3 @@
-from PyQt5.QtCore import pyqtSignal
 from views.cover_window import CoverWindow
 from controllers.settings_controller import SettingsController
 from models.database import Database
@@ -39,7 +38,6 @@ class CoverController:
     def start_application(self):
         self.settings_controller.close()
         if not self.database_connection.connect():
-            pyqtSignal
             QMessageBox.warning(self.view, 'Error', 'No se pudo conectar a la base de datos.')
         self.navigation_controller.start_application(self.database_connection)
     

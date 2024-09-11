@@ -1,14 +1,16 @@
+import os
 from views.modify_solution_window import ModifySolutionWindow
 from models.phase_2 import Phase2
 import pandas as pd
 
 
 class ModifySolutionController:
-    def __init__(self, navigation_controller, settings, app_state, levels):
+    def __init__(self, navigation_controller, settings, app_state, levels, file="Nivelacion_modificable.xlsx"):
         self.navigation_controller = navigation_controller
         self.settings = settings
         self.app_state = app_state
         self.levels = levels
+        self.file_name = file
 
         # Campos que se usarán de los productos
         self.product_fields = ["Coleccion", "Modelo", "Color", "SKU"]
@@ -19,8 +21,7 @@ class ModifySolutionController:
         self.solution = Phase2(self.app_state.df_facts, self.app_state.product_dimensions, self.levels.store_profile)
         self.solution.clean()
         print("Solución calculada")
-        self.view = ModifySolutionWindow()
-        self.selected_directory = self.view.path_display.text()
+        self.view = ModifySolutionWindow(self.file_name)
         self.setup_connections()
         self.show()
 
@@ -35,8 +36,8 @@ class ModifySolutionController:
             self.view.selected_directory.getExistingDirectory(self.view, "Seleccione la ubicación de guardado")
         if new_selected_directory:
             # Actualizar la etiqueta de la ruta seleccionada
-            self.selected_directory = new_selected_directory.replace("/", "\\") + "\\Nivelacion_modificable.xlsx"
-            self.view.path_display.setText(self.selected_directory)
+            self.view.selected_file = new_selected_directory.replace("/", "\\") + "\\Nivelacion_modificable.xlsx"
+            self.view.path_display.setText(self.view.selected_file)
 
     def save_solution(self):
         # Obtener los DataFrames de donde saldrán los datos
@@ -58,7 +59,7 @@ class ModifySolutionController:
         sales = sales.sort_values(by=["SKU"])
 
         # Crear un writer para poder escribir un archivo con diferentes hojas
-        writer = pd.ExcelWriter(self.selected_directory, engine='xlsxwriter')
+        writer = pd.ExcelWriter(self.view.selected_file, engine='xlsxwriter')
 
         # Guardar los archivos
         initial.to_excel(writer, sheet_name='Inicial', index=False)

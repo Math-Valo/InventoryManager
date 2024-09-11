@@ -34,8 +34,8 @@ class CoverWindow(QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
         # Ruta a la carpeta de imágenes
-        self.image_dir = os.path.join(os.path.dirname(__file__), "..\\..", "images")
-        self.background_image_path = os.path.join(self.image_dir, background_image_name).replace("\\", "/")
+        self.image_dir = os.path.join(os.path.dirname(__file__), "..", "..", "images")
+        self.background_image_path = os.path.join(self.image_dir, background_image_name)
 
         # Crear un QLabel para la imagen de fondo
         self.background_label = QLabel(self.centralwidget)
@@ -50,12 +50,12 @@ class CoverWindow(QMainWindow):
 
         # Logos alineados a la derecha
         first_logo = QLabel()
-        pixmap_first_logo = QPixmap(os.path.join(self.image_dir, first_logo_name).replace("\\", "/"))
+        pixmap_first_logo = QPixmap(os.path.join(self.image_dir, first_logo_name))
         first_logo.setPixmap(pixmap_first_logo.scaled(100, 100, Qt.KeepAspectRatio))
         first_logo.setAlignment(Qt.AlignRight | Qt.AlignTop)
 
         second_logo = QLabel()
-        pixmap_second_logo = QPixmap(os.path.join(self.image_dir, second_logo_name).replace("\\", "/"))
+        pixmap_second_logo = QPixmap(os.path.join(self.image_dir, second_logo_name))
         second_logo.setPixmap(pixmap_second_logo.scaled(100, 100, Qt.KeepAspectRatio))
         second_logo.setAlignment(Qt.AlignRight | Qt.AlignTop)
 
@@ -88,7 +88,7 @@ class CoverWindow(QMainWindow):
 
         # Botón Exit
         self.exit_button = QPushButton()
-        self.exit_button.setIcon(QIcon(os.path.join(self.image_dir, "exit_black.png").replace("\\", "/")))
+        self.exit_button.setIcon(QIcon(os.path.join(self.image_dir, "exit_black.png")))
         self.exit_button.setIconSize(self.exit_button.sizeHint())
         self.exit_button.setToolTip("Salir")
 
@@ -99,12 +99,12 @@ class CoverWindow(QMainWindow):
 
         # Botones de Configuración y Ayuda con Tooltips
         self.settings_button = QPushButton()
-        self.settings_button.setIcon(QIcon(os.path.join(self.image_dir, "settings_black.png").replace("\\", "/")))
+        self.settings_button.setIcon(QIcon(os.path.join(self.image_dir, "settings_black.png")))
         self.settings_button.setIconSize(self.settings_button.sizeHint())
         self.settings_button.setToolTip("Configuración")
 
         help_button = QPushButton()
-        help_button.setIcon(QIcon(os.path.join(self.image_dir, "help_black.png").replace("\\", "/")))
+        help_button.setIcon(QIcon(os.path.join(self.image_dir, "help_black.png")))
         help_button.setIconSize(help_button.sizeHint())
         help_button.setToolTip("Ayuda")
 

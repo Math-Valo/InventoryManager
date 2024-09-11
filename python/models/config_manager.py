@@ -3,14 +3,22 @@ import os
 
 
 class ConfigManager:
-    def __init__(self, config_file="config\\config.json"):
-        # config_dir = os.path.join(os.path.dirname(__file__), "..\\..", "config")
-        # self.config_file = os.path.join(config_dir, config_file).replace("\\", "/")
-        # self.config_file = "..\\..\\"+config_file
+    def __init__(self, config_file="config.json"):
         self.config_file = config_file
+        self.find_config_folder()
+
         self.settings = dict()
         self.credentials = None
         self.load_config()
+
+    def find_config_folder(self, config_folder="config"):
+        current_path = os.path.dirname(__file__)
+        while not os.path.exists(os.path.join(current_path, config_folder)):
+            parent_path = os.path.dirname(current_path)
+            if current_path == parent_path:
+                raise FileNotFoundError(f"No se pudo encontrar {config_folder}")
+            current_path = parent_path
+        self.config_file = os.path.join(current_path, config_folder, self.config_file)
 
     def set_settings(self, key, value):
         self.settings[key] = value

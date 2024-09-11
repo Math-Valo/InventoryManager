@@ -5,13 +5,24 @@ from PyQt5.QtCore import Qt
 
 
 class DownloadShipmentsWindow(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, file) -> None:
         super().__init__()
         self.button_box = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
         self.button_select_path = QPushButton()
         self.path_display = QLabel()
         self.selected_directory = QFileDialog
+        self.selected_file = file
+        self.find_files_folder()
         self.setup_ui()
+
+    def find_files_folder(self, files_folder="files"):
+        current_path = os.path.dirname(__file__)
+        while not os.path.exists(os.path.join(current_path, files_folder)):
+            parent_path = os.path.dirname(current_path)
+            if current_path == parent_path:
+                raise FileNotFoundError(f"No se pudo encontrar {files_folder}")
+            current_path = parent_path
+        self.selected_file = os.path.join(current_path, files_folder, self.selected_file)
 
     def setup_ui(self):
         self.setWindowTitle('Descargar envíos')
@@ -37,8 +48,7 @@ class DownloadShipmentsWindow(QWidget):
         layout.addWidget(path_label)
 
         # Etiqueta informativa para la ubicación del archivo
-        file_dir = os.path.join(os.path.dirname(__file__), "..\\..", "files")
-        self.path_display.setText(file_dir + "\\Nivelacion_envios.xlsx")
+        self.path_display.setText(self.selected_file)
         layout.addWidget(self.path_display)
 
         # Botón para seleccionar la ubicación de guardado
@@ -57,6 +67,6 @@ class DownloadShipmentsWindow(QWidget):
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
-    window = DownloadShipmentsWindow()
+    window = DownloadShipmentsWindow("test.xlsx")
     window.show()
     sys.exit(app.exec_())
