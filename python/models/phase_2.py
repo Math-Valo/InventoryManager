@@ -101,8 +101,8 @@ class Phase2:
         if total_sales == 0:
             total_sales = self.store_profile["AnnualSales"].sum()
             for store in stores:
-                sales.loc[0, sales.columns.get_loc(store)] = \
-                    self.store_profile[self.store_profile["CodAlmacen"] == store]["AnnualSales"].loc[0]
+                sales.iloc[0, sales.columns.get_loc(store)] = \
+                    self.store_profile[self.store_profile["CodAlmacen"] == store]["AnnualSales"].iloc[0]
         # Recalcular el límite máximo por tallas
         maximum_clothing_in_store = max(self.maximum_clothing_in_store, math.ceil(total_sales / len(stores)))
 
@@ -176,7 +176,7 @@ class Phase2:
         total_inventory_per_sku = pd.melt(initial[["Agrupador", "SKU"]+stores], id_vars=["SKU"],
                                           value_vars=stores, value_name="CurrentInventory"
                                           ).groupby(["SKU"], as_index=False
-                                                    ).sum()[["SKU", "CurrentInventory"]]
+                                                    ).agg({"CurrentInventory": "sum"})
         # Conocer el inventario total por tienda (no tiene uso)
         # total_inventory_per_store = pd.melt(initial[["Agrupador"]+stores].groupby(["Agrupador"],
         #                                                                           as_index=False).sum(),
