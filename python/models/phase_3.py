@@ -61,6 +61,7 @@ class Phase3:
         self.calculate_priority()
 
         # Calcular los campos para el DataFrame de movimientos
+        shipping_movements_copy = self.shipping_movements.copy()
         for shipping_place in range(len(self.stores)):
             shipping_store = self.shipping_stores_sorted.loc[self.shipping_stores_sorted["Ranking"] == shipping_place,
                                                              "CodAlmacen"].iloc[0]
@@ -84,5 +85,6 @@ class Phase3:
                     self.receipt_store.append(receipt_store)
                     self.product.append(self.initial.iloc[sku, self.initial.columns.get_loc("SKU")])
                     self.shipping.append(move)
-                    self.shipping_movements.iloc[sku, self.shipping_movements.columns.get_loc(shipping_store)] += move
-                    self.receipt_movements.iloc[sku, self.receipt_movements.columns.get_loc(receipt_store)] -= move
+                    shipping_movements_copy.iloc[sku, self.shipping_movements.columns.get_loc(shipping_store)] += move
+                    shipping_movements_copy.iloc[sku, self.receipt_movements.columns.get_loc(receipt_store)] -= move
+        self.shipping_movements = shipping_movements_copy
