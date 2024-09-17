@@ -8,6 +8,7 @@ class CoverWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         # Constantes
+        self.image_dir = "images"  # Nombre de la carpeta en donde se encuentran las imágenes
         title_app = "Nivelación de Inventarios"
         millet_brands_logo = "logo_millet_brands.png"
         abito_logo = "logo_abito.jpg"
@@ -15,9 +16,8 @@ class CoverWindow(QMainWindow):
 
         # Inicialización de atributos propios de la ventana (buenas prácticas)
         self.centralwidget = None
-        self.image_dir = None
         self.background_image_path = None
-        self. background_label = None
+        self.background_label = None
         self.widgets_container = None
         self.start_button = None
         self.exit_button = None
@@ -34,7 +34,7 @@ class CoverWindow(QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
         # Ruta a la carpeta de imágenes
-        self.image_dir = os.path.join(os.path.dirname(__file__), "..", "..", "images")
+        self.image_dir = self.find_images_folder()
         self.background_image_path = os.path.join(self.image_dir, background_image_name)
 
         # Crear un QLabel para la imagen de fondo
@@ -136,3 +136,12 @@ class CoverWindow(QMainWindow):
     def update_background_and_widgets(self):
         self.background_label.resize(self.centralwidget.size())
         self.widgets_container.resize(self.centralwidget.size())
+
+    def find_images_folder(self):
+        current_path = os.path.dirname(__file__)
+        while not os.path.exists(os.path.join(current_path, self.image_dir)):
+            parent_path = os.path.dirname(current_path)
+            if current_path == parent_path:
+                raise FileNotFoundError(f"No se pudo encontrar {self.image_dir}")
+            current_path = parent_path
+        return os.path.join(current_path, self.image_dir)

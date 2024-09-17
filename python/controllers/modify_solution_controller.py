@@ -35,8 +35,13 @@ class ModifySolutionController:
         new_selected_directory =\
             self.view.selected_directory.getExistingDirectory(self.view, "Seleccione la ubicación de guardado")
         if new_selected_directory:
+            if not self.view.flag_folder_found:
+                self.view.flag_folder_found = True
+                self.view.path_label.show()
+                self.view.path_display.show()
+                self.view.button_box.show()
             # Actualizar la etiqueta de la ruta seleccionada
-            self.view.selected_file = new_selected_directory.replace("/", "\\") + "\\Nivelacion_modificable.xlsx"
+            self.view.selected_file = os.path.join(new_selected_directory, self.file_name)
             self.view.path_display.setText(self.view.selected_file)
 
     def save_solution(self):
