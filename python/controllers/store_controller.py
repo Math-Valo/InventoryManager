@@ -25,16 +25,16 @@ class StoreController:
         self.view.continue_button.clicked.connect(self.continue_to_next_window)
 
     def select_unselect_region(self, checked, region):
-        stores = self.df_store_filtered[self.df_store_filtered["Region"]==region]["CodAlmacen"].tolist()
+        stores = self.df_store_filtered[self.df_store_filtered["Region"] == region]["CodAlmacen"].tolist()
         for store in stores:
             self.view.stores[store].setChecked(checked)
  
         self.update_selected_stores()
 
     def select_unselect_store(self, checked, code):
-        region = self.df_store_filtered[self.df_store_filtered["CodAlmacen"]==code]["Region"].iat[0]
+        region = self.df_store_filtered[self.df_store_filtered["CodAlmacen"] == code]["Region"].iat[0]
         if checked:
-            for store in self.df_store_filtered[self.df_store_filtered["Region"]==region]["CodAlmacen"].tolist():
+            for store in self.df_store_filtered[self.df_store_filtered["Region"] == region]["CodAlmacen"].tolist():
                 if not self.view.stores[store].isChecked():
                     self.update_selected_stores()
                     return None
@@ -46,7 +46,7 @@ class StoreController:
     
     def update_selected_stores(self):
         headers = ["CodAlmacen", "ShortName", "Region", "Ciudad", "Zona",
-                  "ClasificacionVentaTotal", "TamanoTienda", "Capacidad", "Stock"]
+                   "ClasificacionVentaTotal", "TamanoTienda", "Capacidad", "Stock"]
         selected_stores = self.get_stores_list()
         query = "CodAlmacen in "+selected_stores.__str__()
         df_selected_stores = self.df_store_filtered[headers].query(query)

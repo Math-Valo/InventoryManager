@@ -211,6 +211,10 @@ class Phase2:
             for store in stores:
                 total_sales_per_store.iloc[0, total_sales_per_store.columns.get_loc(store)] = \
                     self.store_profile[self.store_profile["CodAlmacen"] == store]["AnnualSales"].sum()
+            total_sales_per_store = pd.melt(total_sales_per_store[["Agrupador"] + stores].groupby(["Agrupador"],
+                                                                                                  as_index=False).sum(),
+                                            id_vars=["Agrupador"], value_vars=stores, var_name="CodAlmacen",
+                                            value_name="AnnualSales")
 
         # NIVELACIÓN
 
@@ -231,13 +235,16 @@ class Phase2:
 
             for store in stores:  # Hay una forma más fácil de hacer esto, usando apply(), pero estoy cansado. :(
                 # Se realiza el cálculo
-                level.iloc[index, level.columns.get_loc(store)] = \
+                try:
+                 level.iloc[index, level.columns.get_loc(store)] = \
                     min(maximum_clothing_in_store,
                         math.ceil(total_inventory_per_sku[total_inventory_per_sku["SKU"] == sku
                                                           ].reset_index().loc[0, "CurrentInventory"]
                                   * total_sales_per_store[total_sales_per_store["CodAlmacen"] == store
                                                           ].reset_index().loc[0, "AnnualSales"]
                                   / total_sales))
+                except Exception as e:
+                    print(f"Error tipo {type(e)}: {e}")
 
             # Se calcula la diferencia del inventario por sku
             difference = int(total_inventory_per_sku[total_inventory_per_sku["SKU"] == sku
