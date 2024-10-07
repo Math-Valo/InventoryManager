@@ -7,8 +7,8 @@ class Phase3:
         self.level = level_pivot
         self.store_profile = store_profile
         # DataFrames de movimientos
-        self.shipping_movements = self.level[["Agrupador", "SKU"]].copy()
-        self.receipt_movements = self.shipping_movements.copy()
+        self.shipping_movements = self.level[["Agrupador", "SKU"]].copy()  # Creo que se debe redefinir esto
+        self.receipt_movements = self.shipping_movements.copy()  # Creo que se debe de redefinir esto
         # listas para crear las columnas del DataFrame de envíos
         self.shipping_store = list()
         self.receipt_store = list()
@@ -61,7 +61,7 @@ class Phase3:
         self.calculate_priority()
 
         # Calcular los campos para el DataFrame de movimientos
-        shipping_movements_copy = self.shipping_movements.copy()
+        # shipping_movements_copy = self.shipping_movements.copy()
         for shipping_place in range(len(self.stores)):
             shipping_store = self.shipping_stores_sorted.loc[self.shipping_stores_sorted["Ranking"] == shipping_place,
                                                              "CodAlmacen"].iloc[0]
@@ -85,6 +85,9 @@ class Phase3:
                     self.receipt_store.append(receipt_store)
                     self.product.append(self.initial.iloc[sku, self.initial.columns.get_loc("SKU")])
                     self.shipping.append(move)
-                    shipping_movements_copy.iloc[sku, self.shipping_movements.columns.get_loc(shipping_store)] += move
-                    shipping_movements_copy.iloc[sku, self.receipt_movements.columns.get_loc(receipt_store)] -= move
-        self.shipping_movements = shipping_movements_copy
+                    self.shipping_movements.iloc[sku, self.shipping_movements.columns.get_loc(shipping_store)] += move
+                    self.receipt_movements.iloc[sku, self.receipt_movements.columns.get_loc(receipt_store)] -= move
+                    shipping_available -= move
+                    receipt_available -= move
+                    if shipping_available == 0:
+                        break
